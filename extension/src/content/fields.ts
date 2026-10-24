@@ -36,7 +36,7 @@ export function fieldKind(el: Element): FieldKind {
   return 'unknown';
 }
 
-function hiddenByStyle(el: Element): boolean {
+export function hiddenByStyle(el: Element): boolean {
   for (let node: Element | null = el; node; node = node.parentElement ?? ((node.getRootNode() as ShadowRoot).host ?? null)) {
     const style = getComputedStyle(node);
     if (style.display === 'none' || style.visibility === 'hidden') return true;

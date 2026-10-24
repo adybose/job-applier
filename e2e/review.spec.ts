@@ -45,6 +45,6 @@ test.describe('review', () => {
     await why.getByRole('button', { name: 'Skip' }).click();
     await clearCards(panel);
     await expect(panel.getByRole('alert').filter({ hasText: /You skipped \d+ required field/ })).toBeVisible();
-    await expect(panel.locator('.row-warn').first()).toContainText('Why do you want to work at Acme Robotics?');
+    await expect(panel.locator('.row-warn').filter({ hasText: 'Why do you want to work at Acme Robotics?' })).toHaveCount(1);
   });
 });

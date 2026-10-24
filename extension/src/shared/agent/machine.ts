@@ -44,6 +44,8 @@ export interface Card {
   instruction?: string;
   proposal?: Proposal;
   blocker?: Blocker['type'];
+  /** A "Go to the next step?" card for an approved Next/Continue click (spec 05 R-AL-16). */
+  nav?: boolean;
   createdAt: number;
 }
 
@@ -78,6 +80,8 @@ export type RunEvent =
   | { type: 'FILL_FAILED'; fieldId: string; reason: string; instruction: string }
   | { type: 'RESOLVED'; id: string; decidedBy: Decision; value?: string }
   | { type: 'BLOCKER_RESOLVED'; id: string }
+  | { type: 'NAV_PROPOSED'; buttonId: string; frameId: number; text: string }
+  | { type: 'NAV_RESOLVED'; buttonId: string; clicked: boolean }
   | { type: 'NAVIGATED'; url: string }
   | { type: 'LOG'; kind: LogEntry['kind']; text: string }
   | { type: 'PAUSE' }
@@ -294,6 +298,32 @@ export function reduce(state: RunState, event: RunEvent): RunState {
       const card = state.cards.find((c) => c.id === event.id);
       if (!card) return state;
       return settle({ ...state, cards: state.cards.filter((c) => c.id !== event.id), log: log(state, 'human', `${card.label}: done`) });
+    }
+
+    case 'NAV_PROPOSED':
+      if (!ACTIVE.has(state.phase) || state.cards.some((c) => c.id === event.buttonId)) return state;
+      return settle({
+        ...state,
+        cards: upsertCard(state.cards, {
+          id: event.buttonId,
+          type: 'approval',
+          frameId: event.frameId,
+          label: 'Go to the next step?',
+          reason: `Every required field on this step is done. Lazy Apply will click "${event.text}".`,
+          nav: true,
+          createdAt: now(),
+        }),
+        log: log(state, 'waiting', `Next step: needs your OK to click "${event.text}"`),
+      });
+
+    case 'NAV_RESOLVED': {
+      const card = state.cards.find((c) => c.id === event.buttonId);
+      if (!card) return state;
+      return settle({
+        ...state,
+        cards: state.cards.filter((c) => c.id !== event.buttonId),
+        log: log(state, 'info', event.clicked ? 'Went to the next step.' : 'Stayed on this step.'),
+      });
     }
 
     case 'NAVIGATED':

@@ -95,3 +95,10 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Fixtures run on loopback, which the extension can always access. Real ATS pages need host access; cross-origin job-board iframes (Greenhouse embeds) need their own; and `activeTab` alone is revoked when a multi-step form navigates.
 - **Decision:** `host_permissions` stay loopback-only. `optional_host_permissions` is `https://*/*` and `http://*/*`, but nothing is granted at install. Clicking the toolbar icon gives `activeTab`, which lets the panel read the tab's URL and list its iframes. On Start (a user gesture) the panel requests exactly the tab's site plus any known job-board iframe sites in one Chrome prompt; if already granted there is no prompt. Without `activeTab` the panel asks the user to click the icon on the job page.
 - **Consequences:** Users see one plain Chrome prompt per site they apply on. No broad access, and no `tabs` permission (which would expose all tab URLs).
+
+## ADR-013: Multi-step navigation and hidden blockers
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Decision:** When a step's required fields are all resolved and the page shows a Next/Continue control (`isNavLike && !isSubmitLike`), the runner proposes a "Go to the next step?" card instead of entering review. Approving it sends the only click Lazy Apply ever makes (`approvedNav: true`, re-checked in the page). "Not yet" is remembered until new fields appear. After any step change the runner re-scans, and re-injects the content script if a full page load dropped it. Blockers (CAPTCHA, OAuth, recorder) only count when visible, so a CAPTCHA on step 3 doesn't block step 1. Text inside web-component buttons is read through `<slot>` assigned nodes.
+- **Consequences:** Multi-step forms work with one approval per step. Workable, SmartRecruiters (web components with shadow roots) and a three-step shadow-DOM form are covered by e2e.

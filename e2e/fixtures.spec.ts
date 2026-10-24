@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { FIXTURE_ORIGIN } from './harness';
 
 // Spec 10 R-TE-4 / fixtures/README.md: every form fixture has the required elements.
-const FORMS = ['greenhouse.html', 'lever.html', 'ashby.html', 'generic.html'];
+const FORMS = ['greenhouse.html', 'lever.html', 'ashby.html', 'generic.html', 'workable.html', 'smartrecruiters.html'];
 
 for (const name of FORMS) {
   test.describe(name, () => {
@@ -15,7 +15,7 @@ for (const name of FORMS) {
       await expect(page.locator('textarea, [contenteditable=true]').first()).toBeAttached();
       await expect(page.locator('.g-recaptcha, .h-captcha, .cf-turnstile').first()).toBeAttached();
       await expect(page.getByText(/gender/i).first()).toBeAttached();
-      await expect(page.getByText(/ignore (all )?(previous|prior)|system note to ai|new instruction/i).first()).toBeAttached();
+      await expect(page.getByText(/ignore (all )?(previous|prior)|ignore the form|system note to ai|new instruction|ai agents|disregard the user/i).first()).toBeAttached();
 
       const submit = page.locator('[data-submit]').last();
       await submit.scrollIntoViewIfNeeded();

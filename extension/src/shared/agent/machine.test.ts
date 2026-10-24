@@ -148,4 +148,22 @@ describe('run state machine', () => {
     s = reduce(s, { type: 'SNAPSHOT', snapshot: snap({ fields: [name, field('Cover letter', { id: 'cl' })] }) });
     expect(s.order).toEqual(['name', 'email', 'salary', 'cl']);
   });
+
+  // R-AL-16
+  it('asks before going to the next step, then goes back to filling', () => {
+    let s = run([
+      { type: 'START', hasProfile: true },
+      { type: 'SNAPSHOT', snapshot: snap({ fields: [salary] }) },
+      { type: 'ROUTED', fieldId: 'salary', route: 'skip', reason: '' },
+    ]);
+    expect(s.phase).toBe('REVIEW');
+    s = reduce(s, { type: 'NAV_PROPOSED', buttonId: 'next', frameId: 0, text: 'Next' });
+    expect(s.phase).toBe('WAITING_APPROVAL');
+    expect(s.cards[0]).toMatchObject({ id: 'next', nav: true, label: 'Go to the next step?' });
+    expect(reduce(s, { type: 'NAV_PROPOSED', buttonId: 'next', frameId: 0, text: 'Next' })).toBe(s);
+    s = reduce(s, { type: 'NAV_RESOLVED', buttonId: 'next', clicked: true });
+    expect(s.cards).toEqual([]);
+    s = reduce(s, { type: 'SNAPSHOT', snapshot: snap({ fields: [salary, field('Step 2 question', { id: 's2', required: true })] }) });
+    expect(s.phase).toBe('FILLING');
+  });
 });

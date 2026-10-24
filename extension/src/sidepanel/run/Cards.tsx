@@ -27,8 +27,11 @@ export function CardList({ state, runner }: { state: RunState; runner: Runner | 
       </h3>
       <ul>
         {cards.map((card) => (
-          <li key={card.id}>
-            {card.type === 'handoff' ? (
+          // A re-routed card (new proposal) gets a new createdAt, so its local edit state starts fresh.
+          <li key={`${card.id}-${card.createdAt}`}>
+            {card.nav ? (
+              <NavCard card={card} runner={runner} />
+            ) : card.type === 'handoff' ? (
               <HandoffCard card={card} runner={runner} />
             ) : (
               <AnswerCard card={card} state={state} runner={runner} />
@@ -37,6 +40,34 @@ export function CardList({ state, runner }: { state: RunState; runner: Runner | 
         ))}
       </ul>
     </section>
+  );
+}
+
+function NavCard({ card, runner }: { card: Card; runner: Runner }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <article className="card card-approval" aria-labelledby={`card-${card.id}`}>
+      <p className="card-kind">Next step</p>
+      <h4 id={`card-${card.id}`}>{card.label}</h4>
+      <p>{card.reason}</p>
+      <div className="actions">
+        <button
+          type="button"
+          className="primary"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            await runner.answer(card.id, '', false);
+            setBusy(false);
+          }}
+        >
+          Approve and go to the next step
+        </button>
+        <button type="button" disabled={busy} onClick={() => void runner.resolve(card.id, 'skipped')}>
+          Not yet
+        </button>
+      </div>
+    </article>
   );
 }
 

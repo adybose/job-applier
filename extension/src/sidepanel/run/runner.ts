@@ -71,6 +71,8 @@ export class Runner {
   private cardsOpenSince: number | undefined;
   private humanMs = 0;
   private recorded = false;
+  /** Next/Continue buttons the user said "not yet" to, until new fields appear. */
+  private declinedNav = new Set<string>();
 
   constructor(private readonly deps: RunnerDeps) {}
 
@@ -141,13 +143,22 @@ export class Runner {
     let snapshot: FormSnapshot;
     try {
       snapshot = await this.deps.page.snapshotTab(this.deps.tabId);
+      // A full page load (a multi-step form's next page) drops the content script: inject again.
+      const empty = !snapshot.fields.length && !snapshot.buttons.length;
+      if (empty || (this.state.url && snapshot.url && !sameDocument(this.state.url, snapshot.url))) {
+        await this.deps.page.injectContent(this.deps.tabId).catch(() => undefined);
+        snapshot = await this.deps.page.snapshotTab(this.deps.tabId);
+      }
     } catch {
       return;
     }
-    if (this.state.url && sameDocument(this.state.url, snapshot.url) === false) {
+    if (!snapshot.url) return;
+    if (this.state.url && !sameDocument(this.state.url, snapshot.url)) {
       this.dispatch({ type: 'NAVIGATED', url: snapshot.url });
     }
+    const known = this.state.order.length;
     this.dispatch({ type: 'SNAPSHOT', snapshot });
+    if (this.state.order.length > known) this.declinedNav.clear();
     this.checkHumanProgress(snapshot);
     await this.processNewFields();
   }
@@ -343,8 +354,27 @@ export class Runner {
   async answer(id: string, value: string, edited: boolean): Promise<boolean> {
     const card = this.state.cards.find((c) => c.id === id);
     if (!card || !this.active) return false;
+    if (card.nav) return this.goNext(card.id, card.frameId);
     return new Promise((resolve) => {
       this.enqueue(async () => resolve(await this.apply(id, value, edited ? 'edited' : 'approved', true)), true);
+    });
+  }
+
+  /** Spec 05 R-AL-16: the one click Lazy Apply makes, after approval, on a Next/Continue button. */
+  private goNext(buttonId: string, frameId: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.enqueue(async () => {
+        const result = await this.deps.page
+          .act(this.deps.tabId, frameId, { action: 'click', buttonId, approvedNav: true })
+          .catch(() => ({ ok: false as const, reason: 'not-found' as const }));
+        this.dispatch({ type: 'NAV_RESOLVED', buttonId, clicked: result.ok });
+        if (!result.ok) {
+          this.declinedNav.add(buttonId);
+          this.dispatch({ type: 'LOG', kind: 'blocked', text: "Lazy Apply won't click that button. If it isn't Submit, click it yourself." });
+        }
+        setTimeout(() => void this.poll(), 400);
+        resolve(result.ok);
+      }, true);
     });
   }
 
@@ -352,6 +382,11 @@ export class Runner {
   async resolve(id: string, how: 'skipped' | 'human'): Promise<void> {
     const card = this.state.cards.find((c) => c.id === id);
     if (!card) return;
+    if (card.nav) {
+      this.declinedNav.add(id);
+      this.dispatch({ type: 'NAV_RESOLVED', buttonId: id, clicked: false });
+      return;
+    }
     if (card.blocker) this.dispatch({ type: 'BLOCKER_RESOLVED', id });
     else this.dispatch({ type: 'RESOLVED', id, decidedBy: how, value: how === 'human' ? this.state.fields[id]?.field.value : undefined });
     await this.unpoint(id, card.frameId);
@@ -439,6 +474,12 @@ export class Runner {
 
   private onPhase(previous: RunState['phase']): void {
     if (this.state.phase === 'REVIEW' && previous !== 'REVIEW') {
+      // A multi-step form: the step is done, so offer Next before the final review (R-AL-16).
+      const next = this.state.buttons.find((b) => b.isNavLike && !b.isSubmitLike && !this.declinedNav.has(b.id));
+      if (next) {
+        this.dispatch({ type: 'NAV_PROPOSED', buttonId: next.id, frameId: next.frameId, text: next.text });
+        return;
+      }
       void this.highlightSubmit();
       void this.record();
     }

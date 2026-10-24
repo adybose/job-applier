@@ -35,6 +35,11 @@ export function textOf(node: Node | null | undefined): string {
     if (!(n instanceof Element)) return;
     if (SKIP_TEXT_IN.has(n.tagName)) return;
     if (n.getAttribute('aria-hidden') === 'true' || n.hasAttribute('hidden')) return;
+    // Web components project their labels through <slot>.
+    if (n instanceof HTMLSlotElement) {
+      for (const assigned of n.assignedNodes({ flatten: true })) visit(assigned);
+      return;
+    }
     for (const child of Array.from(n.childNodes)) visit(child);
     if (n.shadowRoot) for (const child of Array.from(n.shadowRoot.childNodes)) visit(child);
   };

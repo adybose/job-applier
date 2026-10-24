@@ -16,6 +16,9 @@ const FIXTURES: Expectations[] = [
   { fixture: 'lever.html', resume: 'Resume/CV', nonResume: 'Work samples (optional)', eeo: /^Gender$/, freeText: /Add a cover letter/ },
   { fixture: 'ashby.html', resume: 'Resume', nonResume: 'Portfolio (PDF)', eeo: /^Gender$/, freeText: /What excites you/ },
   { fixture: 'generic.html', resume: 'Resume / CV', nonResume: 'Academic transcript (PDF)', eeo: /^Gender identity$/, freeText: /Tell us about a data project/ },
+  // P1 (T19)
+  { fixture: 'workable.html', resume: 'Resume', nonResume: 'Work sample (PDF)', eeo: /^Gender$/, freeText: /Why are you interested/ },
+  { fixture: 'smartrecruiters.html', resume: 'Resume', nonResume: 'Additional documents', eeo: /^Gender$/, freeText: /Message to the hiring team/ },
 ];
 
 const cardFor = (panel: Page, name: string | RegExp) =>

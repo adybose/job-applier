@@ -1,6 +1,6 @@
 import type { Blocker } from '../shared/snapshot';
 import { deepElements, textOf } from './dom';
-import { isActionable } from './fields';
+import { hiddenByStyle, isActionable } from './fields';
 import { idFor } from './registry';
 
 const CAPTCHA_SELECTOR = '.g-recaptcha, .h-captcha, .cf-turnstile, [data-sitekey]';
@@ -29,6 +29,8 @@ export function findBlockers(doc: Document): Blocker[] {
   };
 
   for (const el of deepElements(doc)) {
+    // A blocker on a step that isn't shown yet is not a blocker yet.
+    if (!(el instanceof HTMLInputElement) && el.matches(`${CAPTCHA_SELECTOR}, iframe, button, a, [role=button], h1, h2, h3`) && hiddenByStyle(el)) continue;
     if (el.matches(CAPTCHA_SELECTOR) && !el.parentElement?.closest(CAPTCHA_SELECTOR)) {
       add(el, 'captcha', 'A CAPTCHA check');
     } else if (el instanceof HTMLIFrameElement && CAPTCHA_FRAME.test(el.src)) {

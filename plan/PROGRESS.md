@@ -157,3 +157,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Harness fix: `openFixture` picks the newest tab when a fixture is open twice.
 - Tests: 12 new unit (AC-AM-1..5, stats), e2e second application faster from memory plus Stats (AC-AM-6). All suites green.
 - Next: T19 (multi-step forms, P1).
+
+## 2026-10-25 — T19 Multi-step forms (P1)
+
+- Reducer: `NAV_PROPOSED`/`NAV_RESOLVED` and nav cards. Runner: propose Next at the end of a step, click only after approval, "Not yet", re-scan/re-inject after step changes (ADR-013). Hidden blockers ignored; `<slot>` text read.
+- Fixtures: `shadow-multistep.html` (three steps inside one shadow root, Next/Back, counts Next/Back/Submit clicks), `workable.html` (data-ui inputs, controlled inputs, hidden resume input, hCaptcha), `smartrecruiters.html` (web components with shadow roots for every input, select, dropzone and the Submit button).
+- Cards are keyed by creation time, so a re-routed card starts from its new proposal.
+- Tests: e2e multistep (one approval per Next, step 2 CV upload/handoff/draft, step 3 review with Submit outlined in the shadow root, Back never clicked, zero submits; "Not yet" stays), Workable and SmartRecruiters full runs, fixture validation for both. 214 unit + 62 e2e green twice.
+- Next: T20 (scanned-PDF vision fallback, P1).
