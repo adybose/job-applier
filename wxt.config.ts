@@ -12,6 +12,8 @@ export default defineConfig({
     minimum_chrome_version: '116',
     permissions: ['sidePanel', 'storage', 'unlimitedStorage', 'activeTab', 'scripting'],
     host_permissions: LOOPBACK_HOST_PERMISSIONS,
+    // Requested per site when the user presses Start (ADR-012); nothing is granted at install.
+    optional_host_permissions: ['https://*/*', 'http://*/*'],
     action: { default_title: 'Open Lazy Apply' },
     content_security_policy: { extension_pages: EXTENSION_PAGES_CSP },
   },

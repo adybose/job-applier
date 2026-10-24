@@ -5,7 +5,9 @@ import { alexProfile } from './seed';
 import { findViolations, type ExtensionRequest } from './guard';
 
 export const USE_OLLAMA = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
-export const MODEL_ORIGIN = USE_OLLAMA ? 'http://localhost:11434' : 'http://127.0.0.1:11435';
+/** Real Ollama for `test:e2e:ollama`; it must allow extension origins (OLLAMA_ORIGINS=chrome-extension://*). */
+export const OLLAMA_ORIGIN = process.env.LAZYAPPLY_OLLAMA_URL ?? 'http://localhost:11434';
+export const MODEL_ORIGIN = USE_OLLAMA ? OLLAMA_ORIGIN : 'http://127.0.0.1:11435';
 export const MOCK_ORIGIN = 'http://127.0.0.1:11435';
 /** The default endpoint is configured until each test points the panel at the model under test. */
 export const DEFAULT_MODEL_ORIGIN = 'http://localhost:11434';
@@ -192,7 +194,8 @@ export async function startRun(
 /** Works through every card like a user would: approve proposals, "I did it" for handoffs, skip the rest. */
 export async function clearCards(panel: Page): Promise<void> {
   const review = panel.getByRole('heading', { name: 'Review and click Submit yourself.' });
-  for (let i = 0; i < 150 && !(await review.isVisible()); i++) {
+  const deadline = Date.now() + (USE_OLLAMA ? 240_000 : 60_000);
+  while (Date.now() < deadline && !(await review.isVisible())) {
     const card = panel.locator('.card').first();
     if (!(await card.isVisible().catch(() => false))) {
       await panel.waitForTimeout(250);

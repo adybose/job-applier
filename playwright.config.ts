@@ -6,6 +6,8 @@ export default defineConfig({
   testDir: 'e2e',
   workers: 1,
   timeout: useOllama ? 300_000 : 60_000,
+  // A real model takes seconds per call; mock replies are instant.
+  expect: { timeout: useOllama ? 120_000 : 5_000 },
   reporter: [['list']],
   webServer: [
     ...(useOllama

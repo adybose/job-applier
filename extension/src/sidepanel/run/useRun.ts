@@ -6,6 +6,7 @@ import { loadModelSettings } from '../../shared/model/settings';
 import { getFile } from '../../shared/profile/files';
 import { loadProfile, saveProfile } from '../../shared/profile/storage';
 import * as page from '../page';
+import { ensureAccess } from './access';
 import { createDrafter } from './drafter';
 import { Runner } from './runner';
 
@@ -40,8 +41,19 @@ export function useRun() {
     };
   }, []);
 
-  async function start(): Promise<'no-profile' | 'no-tab' | 'started'> {
+  async function start(): Promise<'no-profile' | 'no-tab' | 'no-access' | 'started'> {
     setError(null);
+    // Ask for site access first, while the Start click still counts as a user gesture.
+    const id = tabId.current ?? (await currentTabId());
+    if (!id) {
+      setError('Open a job application page first.');
+      return 'no-tab';
+    }
+    const access = await ensureAccess(id);
+    if (!access.ok) {
+      setError(access.message);
+      return 'no-access';
+    }
     const [profile, settings, resume, linkedin] = await Promise.all([
       loadProfile(),
       loadModelSettings(),
@@ -49,11 +61,6 @@ export function useRun() {
       getFile('linkedin'),
     ]);
     if (!profile) return 'no-profile';
-    const id = tabId.current ?? (await currentTabId());
-    if (!id) {
-      setError('Open a job application page first.');
-      return 'no-tab';
-    }
     tabId.current = id;
     await runner.current?.stop();
     const client = createModelClient(settings);

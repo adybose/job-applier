@@ -19,6 +19,10 @@ describe('manifest', () => {
     }
   });
 
+  it('asks for other sites only at run time, per site', () => {
+    expect(manifest.optional_host_permissions).toEqual(['https://*/*', 'http://*/*']);
+  });
+
   it('does not request broad or network-sensitive permissions', () => {
     const permissions = (manifest.permissions as string[] | undefined) ?? [];
     for (const forbidden of ['<all_urls>', 'webRequest', 'cookies', 'history', 'tabs']) {

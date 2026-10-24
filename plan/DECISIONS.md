@@ -87,3 +87,11 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Spec 05 R-AL-6 had the model return `action` per field. On real `gemma3:4b-it-qat`, 4 of 6 answers used the wrong action name (`set_checked` for a radio, `fill` for a select) and were discarded. The model also auto-filled values it computed ("6 years", wrong) or guessed ("How did you hear: Company website") at confidence 0.9–1.0.
 - **Decision:** The plan schema is `{field_id, value, skip, confidence, rationale, sensitive}`; the action comes from the field kind in code, so the model cannot express clicks or uploads at all. Confidence is capped at 0.7 (below the 0.85 auto threshold) when a typed value is not stated in the profile as a whole word/phrase, or when a choice shares no meaningful word with the profile. Prompt v2 asks for ≤ 0.7 on anything calculated or guessed.
 - **Consequences:** With the same model, grounded answers auto-fill, inferred ones go to approval, unknown ones are skipped. Spec 05 R-AL-6 updated.
+
+## ADR-012: Site access is requested per site at Start
+
+- **Date:** 2026-10-25
+- **Status:** Accepted (supersedes the open part of ADR-002)
+- **Context:** Fixtures run on loopback, which the extension can always access. Real ATS pages need host access; cross-origin job-board iframes (Greenhouse embeds) need their own; and `activeTab` alone is revoked when a multi-step form navigates.
+- **Decision:** `host_permissions` stay loopback-only. `optional_host_permissions` is `https://*/*` and `http://*/*`, but nothing is granted at install. Clicking the toolbar icon gives `activeTab`, which lets the panel read the tab's URL and list its iframes. On Start (a user gesture) the panel requests exactly the tab's site plus any known job-board iframe sites in one Chrome prompt; if already granted there is no prompt. Without `activeTab` the panel asks the user to click the icon on the job page.
+- **Consequences:** Users see one plain Chrome prompt per site they apply on. No broad access, and no `tabs` permission (which would expose all tab URLs).

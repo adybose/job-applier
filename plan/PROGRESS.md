@@ -135,3 +135,9 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Every e2e test also runs the network guard on teardown (AC-OV-2 / AC-PS-3).
 - Tests: 201 unit + 53 e2e green (1.8 min, no GPU). `pnpm test:e2e:ollama` needs `OLLAMA_ORIGINS=chrome-extension://*` on the machine's Ollama (not changed here).
 - Next: T17 (README, privacy, demo script, DEV post draft).
+
+## 2026-10-25 — Real-model end-to-end and site access (T16 follow-up)
+
+- ADR-012: per-site access requested at Start (`sidepanel/run/access.ts`), `optional_host_permissions` only; manifest test updated.
+- `pnpm test:e2e:ollama` verified against real `gemma3:4b-it-qat` through a temporary second Ollama on 127.0.0.1:11436 started with `OLLAMA_ORIGINS=chrome-extension://*` (the default Ollama on 11434 was left untouched; it still returns 403 to extensions). Set `LAZYAPPLY_OLLAMA_URL` to point the suite at it. Expect timeout is 120 s in this mode.
+- Result: all 5 P0 fixtures run to review with the real model, never submitting; the handoff and review suites pass too (10 passed, 1 mock-only skipped, 1.6 min). One full application took 10–15 s of agent time on this Mac (model warm).
