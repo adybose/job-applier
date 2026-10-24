@@ -70,3 +70,15 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Side panel `page.ts`: `act()` per frame, `resumePayload()` from IndexedDB.
 - Tests: 10 new e2e (AC-AC-1..9, overlays, cross-origin embed), 9 new unit (option matching). All suites green.
 - Next: T08 (deterministic mapper).
+
+## 2026-10-25 — T08 Deterministic mapper
+
+- `shared/agent/mapper.ts`: stage 1 with no model. `autocomplete` tokens first, then a label dictionary (names, email, phone, LinkedIn/GitHub/portfolio/website with `https://`, city/location/country/region/postal code, current company/title, notice period, start date). Never maps questions about other people (references, managers). Selects only map to a real matching option. Resume uploads use the CV (LinkedIn PDF flagged). Demographic questions propose the "decline" option (R-AL-13). Sponsorship, work authorization by country and relocation come from preferences. Salary uses the profile or becomes an "ask" (R-AL-14).
+- Tests: 31 mapper cases (AC-AL-2 and more).
+- Next: T09.
+
+## 2026-10-25 — T09 Policy engine
+
+- `shared/policy/sensitive.ts` (code-side classifier: salary, work authorization, EEO, disability, veteran, criminal, references, legal attestations, age; EEO sections). `shared/policy/route.ts`: handoff (password, failed, human-only steps, non-resume or missing uploads) → question/skip (no answer) → approval (sensitive by code or model, drafted text, overwrite, < 0.85) → auto (mapper or ≥ 0.85). Never-submit is enforced in T07's action layer and `isSubmitLike` (T06).
+- Tests: 26 route/sensitivity cases (AC-AL-3..7, AC-PI-9, AC-PS-7). AC-PS-4/5 are covered by the action-layer e2e tests and T10's plan validation.
+- Next: T10 (model planner).
