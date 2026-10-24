@@ -5,7 +5,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | | Id | Task | Pri | Deps | Specs | Done when |
 |---|---|---|---|---|---|---|
 | [x] | T01 | Scaffold WXT MV3 extension: side panel, background, content script, Settings stub, strict TS, ESLint, Vitest, CSP, Apache-2.0 LICENSE | P0 | — | 01 R-PS-3/4, 08 R-UI-1 | `pnpm build` produces a loadable extension; manifest CSP test passes; `pnpm typecheck && pnpm lint && pnpm test` green |
-| [ ] | T02 | Model client (Ollama native + OpenAI-compat), `isLoopbackUrl` guard, 4B/12B presets with Mapping/Drafting slots, onboarding checks, quick benchmark, local call stats | P0 | T01 | 07, 01 R-PS-2 | AC-MR-1..9 and AC-PS-1/2 pass as unit tests |
+| [x] | T02 | Model client (Ollama native + OpenAI-compat), `isLoopbackUrl` guard, 4B/12B presets with Mapping/Drafting slots, onboarding checks, quick benchmark, local call stats | P0 | T01 | 07, 01 R-PS-2 | AC-MR-1..9 and AC-PS-1/2 pass as unit tests |
 | [ ] | T03 | Mock model server and Playwright harness with network-guard test | P0 | T01 | 10 R-TE-3/7/9 | `pnpm test:e2e` loads the extension, guard test passes, and fails when a non-loopback fetch is injected |
 | [ ] | T04 | Profile schema, PDF text extraction, LinkedIn detection, CV/LinkedIn prompts, merge with conflicts, IndexedDB file store, profile editor | P0 | T02 | 02 | AC-PI-1..9 pass |
 | [ ] | T05 | Fixtures: Greenhouse, Lever, Ashby, generic (anonymized, per fixtures/README.md) | P0 | T03 | 10 R-TE-4, fixtures/README.md | Each fixture has all required elements and records Submit clicks |

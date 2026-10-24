@@ -18,3 +18,13 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Decisions: ADR-003 (drop `[::1]`), ADR-004 (toolchain versions).
 - Tests: `pnpm typecheck` clean, `pnpm lint` clean, `pnpm test` 3/3 passing (manifest CSP and permissions). `pnpm build` produces `extension/.output/chrome-mv3`.
 - Next: T02 (model client).
+
+## 2026-10-25 — T02 Model client
+
+- `shared/model/`: `isLoopbackUrl` + `LOOPBACK_ERROR`, 4B/12B presets, zod `ModelSettings` with Mapping/Drafting slots and "same model for both" (stored in `chrome.storage.local`), `ModelClient` (Ollama native `/api/chat` with `format`/`num_ctx`/`temperature`/`stream:false`; OpenAI-compatible `/v1/chat/completions` with `json_schema`), typed `ModelError` kinds (not-loopback, unreachable, forbidden/CORS, timeout, http, bad-response), call-time loopback check, timeout.
+- Onboarding checks (reachable → CORS → models pulled), OS-specific CORS steps, quick benchmark (tokens/s from `eval_count/eval_duration`), `modelOptions` (presets greyed out with `ollama pull` when missing).
+- Local call stats in IndexedDB (`lazyapply` DB, `calls` store); no prompt/response text stored.
+- Side panel: Onboarding view (checklist, copyable commands, benchmark table, Continue once checks pass) and Settings view (endpoint, server type, model slots, num_ctx, custom model name).
+- Verified against real Ollama 0.40.10: `/api/version` works, and a `chrome-extension://` Origin gets 403 without `OLLAMA_ORIGINS`, as the CORS check assumes. Started `ollama pull gemma3:4b-it-qat`.
+- Tests: typecheck clean, lint clean, 45/45 unit tests passing (AC-PS-1/2, AC-MR-1..9). Build OK.
+- Next: T03 (mock model server + Playwright network guard).

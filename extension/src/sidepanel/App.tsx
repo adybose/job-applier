@@ -1,11 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { browser } from 'wxt/browser';
+import { OnboardingView } from './views/OnboardingView';
 import { SettingsView } from './views/SettingsView';
 
 const VIEWS = ['Onboarding', 'Profile', 'Run', 'Review', 'Settings', 'Stats'] as const;
 type View = (typeof VIEWS)[number];
 
+const ONBOARDING_KEY = 'onboarding.passed';
+
 export function App() {
-  const [view, setView] = useState<View>('Onboarding');
+  const [view, setView] = useState<View | null>(null);
+
+  useEffect(() => {
+    // Spec 08 AC-UI-1: Onboarding first until the model checks have passed once.
+    void browser.storage.local.get(ONBOARDING_KEY).then((stored) => {
+      setView(stored[ONBOARDING_KEY] === true ? 'Profile' : 'Onboarding');
+    });
+  }, []);
+
+  async function onboardingPassed() {
+    await browser.storage.local.set({ [ONBOARDING_KEY]: true });
+    setView('Profile');
+  }
 
   return (
     <div className="app">
@@ -29,7 +45,13 @@ export function App() {
         </nav>
       </header>
       <main className="app-main">
-        {view === 'Settings' ? <SettingsView /> : <Placeholder name={view} />}
+        {view === null ? null : view === 'Onboarding' ? (
+          <OnboardingView onPassed={onboardingPassed} />
+        ) : view === 'Settings' ? (
+          <SettingsView />
+        ) : (
+          <Placeholder name={view} />
+        )}
       </main>
     </div>
   );
