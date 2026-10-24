@@ -33,3 +33,19 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Current releases on 2026-10-24 are TypeScript 7.0, React 19.3, zod 4.6, Vitest 5, ESLint 10. typescript-eslint 8.72 requires TypeScript `<6.1`.
 - **Decision:** Pin TypeScript 6.0.3 so linting works. Use React 19 (CLAUDE.md said React 18; nothing depends on 18). Use zod 4's built-in `z.toJSONSchema` instead of `zod-to-json-schema` (spec 02 R-PI-5 updated). All versions pinned exactly in `package.json`.
 - **Consequences:** Revisit TypeScript 7 once typescript-eslint supports it.
+
+## ADR-005: Ground extracted profiles in the source document, in code
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Running the LinkedIn prompt on real `gemma3:4b-it-qat` showed that small models invent plausible job bullets ("Collaborated with cross-functional teams…") when a role has no description, copy the Summary into a job, and treat "Page 1 of 2" as a location. Tightening the prompt made the invention worse, not better.
+- **Decision:** Enforce "never invent experience" in code (`shared/profile/grounding.ts`): drop jobs/schools/skills/certifications whose words are mostly absent from the document, drop bullets with < 80% of their words present, drop LinkedIn bullets that come from the Summary, and strip "Page N of M" lines before extraction. Spec 02 R-PI-6a added.
+- **Consequences:** A model can still pick the wrong grounded value (the user reviews the profile once), but it cannot add experience that isn't in the user's own documents. This holds for any model the user picks.
+
+## ADR-006: Profile storage details
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Spec 02 said every leaf carries a source and the CV is stored as a Blob.
+- **Decision:** Sources are per scalar and per list entry (one job, one skill), not per field inside a job: the editor shows one badge per job. Files are stored as `ArrayBuffer` + name/type, so the background can send bytes to a content script to rebuild a `File` for upload. AC-PI-9 (LinkedIn PDF as resume needs approval) is enforced by the policy engine in T09.
+- **Consequences:** Spec 02 R-PI-10/R-PI-12 updated.

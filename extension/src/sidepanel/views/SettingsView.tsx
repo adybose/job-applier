@@ -9,6 +9,7 @@ import {
   type SlotConfig,
   type SlotName,
 } from '../../shared/model/settings';
+import { deleteAllData } from '../../shared/wipe';
 import { CopyCommand } from '../components/CopyCommand';
 
 export function SettingsView() {
@@ -129,7 +130,50 @@ export function SettingsView() {
           {message.text}
         </p>
       )}
+
+      <DeleteAllData />
     </section>
+  );
+}
+
+/** Spec 01 R-PS-5, with the confirmation inside the panel. */
+function DeleteAllData() {
+  const [confirming, setConfirming] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function wipe() {
+    await deleteAllData();
+    setConfirming(false);
+    setDone(true);
+  }
+
+  return (
+    <fieldset className="danger">
+      <legend>Your data</legend>
+      <p className="muted">
+        Your profile, files, saved answers and stats are stored only in this browser. Deleting them can't be undone.
+      </p>
+      {!confirming ? (
+        <button type="button" onClick={() => setConfirming(true)}>
+          Delete all my data
+        </button>
+      ) : (
+        <div role="alertdialog" aria-labelledby="wipe-q" className="confirm">
+          <p id="wipe-q">
+            <strong>Delete your profile, files, saved answers, settings and stats?</strong>
+          </p>
+          <div className="actions">
+            <button type="button" className="danger-button" onClick={wipe}>
+              Yes, delete everything
+            </button>
+            <button type="button" onClick={() => setConfirming(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {done && <p role="status">All your data was deleted.</p>}
+    </fieldset>
   );
 }
 

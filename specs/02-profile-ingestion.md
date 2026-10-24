@@ -18,6 +18,8 @@ Turn a CV PDF and/or a LinkedIn "Save to PDF" export into one structured, user-r
 - **R-PI-5** Extraction uses the Mapping model with a JSON schema derived from the zod `Profile` schema (zod 4's built-in `z.toJSONSchema`). The output is validated with zod. On failure, retry once with the validation error; on a second failure, show the user an empty editor pre-filled with whatever parsed, plus a plain error message.
 - **R-PI-6** Text is trimmed to the context budget of the selected preset (spec 07). For long CVs, extraction runs per section chunk and the results are merged.
 
+- **R-PI-6a** Grounding (ADR-005): after extraction, code drops any job, school, skill, or certification whose name is not present in the document (≥ 60% of its words), and any bullet that is not present (≥ 80% of its words). For LinkedIn exports, bullets copied from the Summary section are dropped too. "Page N of M" lines are stripped before extraction.
+
 ### Merge
 
 - **R-PI-7** Merge both sources into one `Profile`:
@@ -41,12 +43,12 @@ Turn a CV PDF and/or a LinkedIn "Save to PDF" export into one structured, user-r
   - `education[] {institution, degree?, field?, start?, end?, grade?}`
   - `skills[]`, `languages[] {name, level?}`, `certifications[] {name, issuer?, year?}`
   - `custom: Record<string, string>` (saved answers)
-- **R-PI-10** Every leaf value is stored as `{ value, source: "cv" | "linkedin" | "user" }`. Any user edit sets `source` to `user`.
+- **R-PI-10** Every scalar value, and every list entry as a whole (one experience, one skill), is stored as `{ value, source: "cv" | "linkedin" | "user" }`. Any user edit sets `source` to `user`.
 - **R-PI-11** The profile is saved in `chrome.storage.local` under `profile.v1`, with a schema version for migrations.
 
 ### Files
 
-- **R-PI-12** The original CV file is stored as a Blob in IndexedDB (`files` store) with name, type, size, and kind `resume`. The agent attaches it to resume upload fields (spec 04).
+- **R-PI-12** The original CV file's bytes are stored as an ArrayBuffer in IndexedDB (`files` store) with name, type, size, and kind `resume`. The agent attaches it to resume upload fields (spec 04).
 - **R-PI-13** The LinkedIn PDF is stored with kind `linkedin` and is never attached as a resume unless the user approves that in a card.
 
 ### Editor

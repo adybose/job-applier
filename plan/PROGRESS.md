@@ -37,3 +37,12 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - `pnpm test:e2e` (mock) and `pnpm test:e2e:ollama` (`LAZYAPPLY_E2E_OLLAMA=1`, real Ollama on localhost:11434).
 - Tests: 5/5 e2e passing — guard unit check, onboarding + benchmark reach only the model (and the real request carries `num_ctx`/`temperature`/`stream:false`), guard flags a request to another loopback port (AC-TE-2), CSP blocks `https://example.com` (AC-PS-10), CORS steps on 403 (AC-MR-5). Unit tests, typecheck, lint green.
 - Next: T04 (profile ingestion).
+
+## 2026-10-25 — T04 Profile ingestion
+
+- `shared/profile/`: zod `Profile` (sourced values) and model-facing `ExtractedProfile`; PDF checks (10 MB, `%PDF-` magic), pdf.js text extraction (bundled worker, no CDN), LinkedIn detection by headings, CV and LinkedIn prompts (`prompts/profile.ts`, delimited `DOCUMENT` data), extraction with JSON schema + one retry + partial salvage, chunking to the `num_ctx` budget, grounding filter (ADR-005), merge with conflicts (scalars, job titles), conflict resolution, profile/draft storage, CV/LinkedIn bytes in IndexedDB, "Delete all my data".
+- Side panel: Profile view (upload, progress, conflicts, full editor with source badges, sticky Save) and the Settings "Delete all my data" button with in-panel confirmation.
+- Fixtures: fictional Alex Rivera CV and LinkedIn PDFs (`scripts/make-fixture-pdfs.ts`), recorded extractions in `mock-model/recordings/`.
+- Real model check (`LAZYAPPLY_OLLAMA=1 pnpm vitest run extract.ollama`): `gemma3:4b-it-qat` extracts both fixtures correctly in ~12–14 s each (~45 tok/s output on this Mac). It invented job bullets for the LinkedIn export until the grounding filter was added.
+- Tests: 69 unit (+2 opt-in Ollama) and 7 e2e passing; typecheck and lint clean. AC-PI-1..8 and AC-PS-8 covered; AC-PI-9 moved to T09 (policy).
+- Next: T05 (form fixtures).

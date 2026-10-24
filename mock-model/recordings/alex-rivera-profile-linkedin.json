@@ -1,0 +1,62 @@
+{
+  "match": ["prompt:profile-linkedin", "alex@rivera.example"],
+  "response": {
+    "fullName": "Alex Rivera",
+    "firstName": "Alex",
+    "lastName": "Rivera",
+    "pronouns": null,
+    "email": "alex@rivera.example",
+    "phone": "",
+    "city": "Portland",
+    "region": "Oregon",
+    "country": "United States",
+    "postalCode": null,
+    "linkedin": "www.linkedin.com/in/alex-rivera-example",
+    "github": null,
+    "portfolio": null,
+    "website": null,
+    "otherLinks": [],
+    "experience": [
+      {
+        "company": "Globex Robotics",
+        "title": "Staff Software Engineer",
+        "start": "2021-03",
+        "end": "present",
+        "location": "Portland, Oregon",
+        "bullets": []
+      },
+      {
+        "company": "Initech",
+        "title": "Software Engineer",
+        "start": "2018-06",
+        "end": "2021-02",
+        "location": null,
+        "bullets": []
+      },
+      {
+        "company": "Hooli",
+        "title": "Software Engineering Intern",
+        "start": "2017-06",
+        "end": "2017-09",
+        "location": "Mountain View, California",
+        "bullets": []
+      }
+    ],
+    "education": [
+      {
+        "institution": "Oregon State University",
+        "degree": "Bachelor of Science - BS",
+        "field": "Computer Science",
+        "start": "2014",
+        "end": "2018",
+        "grade": null
+      }
+    ],
+    "skills": ["TypeScript", "React", "Distributed Systems"],
+    "languages": [
+      { "name": "English", "level": "Native or Bilingual" },
+      { "name": "Spanish", "level": "Professional Working" }
+    ],
+    "certifications": [{ "name": "AWS Certified Developer - Associate", "issuer": null, "year": null }]
+  }
+}

@@ -1,4 +1,4 @@
-import { openLazyApplyDb } from '../db';
+import { withDb } from '../db';
 
 export type Stage = 'extraction' | 'planning' | 'drafting' | 'benchmark';
 
@@ -31,12 +31,10 @@ export class IdbStatsSink implements StatsSink {
   constructor(private readonly dbName?: string) {}
 
   async log(stat: CallStat): Promise<void> {
-    const db = await openLazyApplyDb(this.dbName);
-    await db.add('calls', stat);
+    await withDb((db) => db.add('calls', stat), this.dbName);
   }
 
-  async all(): Promise<CallStat[]> {
-    const db = await openLazyApplyDb(this.dbName);
-    return db.getAll('calls');
+  all(): Promise<CallStat[]> {
+    return withDb((db) => db.getAll('calls'), this.dbName);
   }
 }

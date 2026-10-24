@@ -224,6 +224,86 @@ button.small {
   text-align: left;
 }
 
+.badge {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.badge-linkedin {
+  border-style: dashed;
+}
+
+.badge-user {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.entry {
+  margin: 8px 0 12px;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.entry-title {
+  margin: 0 0 8px;
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.inline .field {
+  flex: 1;
+  min-width: 90px;
+}
+
+.conflicts {
+  border-color: var(--warn);
+}
+
+.conflict {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.conflict p {
+  margin: 0;
+}
+
+.conflict button {
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  padding: 8px 0;
+  background: var(--bg);
+}
+
+.danger {
+  margin-top: 24px;
+}
+
+.danger-button {
+  border-color: #b3261e;
+  background: #b3261e;
+  color: #fff;
+}
+
 .error {
   color: var(--warn);
   font-weight: 600;

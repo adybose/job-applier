@@ -1,0 +1,58 @@
+{
+  "match": ["prompt:profile-cv", "alex.rivera@example.com"],
+  "response": {
+    "fullName": "Alex Rivera",
+    "firstName": "Alex",
+    "lastName": "Rivera",
+    "pronouns": null,
+    "email": "alex.rivera@example.com",
+    "phone": "+1 503 555 0142",
+    "city": "Portland",
+    "region": "Oregon",
+    "country": "USA",
+    "postalCode": null,
+    "linkedin": null,
+    "github": "github.com/alexrivera-dev",
+    "portfolio": null,
+    "website": "alexrivera.example.dev",
+    "otherLinks": [],
+    "experience": [
+      {
+        "company": "Globex Robotics",
+        "title": "Senior Software Engineer",
+        "start": "2021-03",
+        "end": "present",
+        "location": "Portland, OR",
+        "bullets": [
+          "Led the rewrite of the fleet telemetry pipeline in TypeScript, cutting alert latency by 60%.",
+          "Mentored four engineers and ran the frontend guild.",
+          "Built a React dashboard used by 300 field technicians."
+        ]
+      },
+      {
+        "company": "Initech",
+        "title": "Software Engineer",
+        "start": "2018-06",
+        "end": "2021-02",
+        "location": "Remote",
+        "bullets": [
+          "Maintained billing APIs in Node.js and PostgreSQL serving 2M requests per day.",
+          "Introduced contract tests that cut production incidents by a third."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "institution": "Oregon State University",
+        "degree": "B.S.",
+        "field": "Computer Science",
+        "start": "2014",
+        "end": "2018",
+        "grade": null
+      }
+    ],
+    "skills": ["TypeScript", "React", "Node.js", "PostgreSQL", "Python", "Docker", "AWS"],
+    "languages": [],
+    "certifications": []
+  }
+}

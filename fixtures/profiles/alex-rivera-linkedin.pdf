@@ -1,0 +1,79 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 848 >>
+stream
+BT /F1 11 Tf 14 TL 50 790 Td
+(Contact) Tj T*
+(alex@rivera.example) Tj T*
+(www.linkedin.com/in/alex-rivera-example \(LinkedIn\)) Tj T*
+(Top Skills) Tj T*
+(TypeScript) Tj T*
+(React) Tj T*
+(Distributed Systems) Tj T*
+(Languages) Tj T*
+(English \(Native or Bilingual\)) Tj T*
+(Spanish \(Professional Working\)) Tj T*
+(Certifications) Tj T*
+(AWS Certified Developer - Associate) Tj T*
+(Alex Rivera) Tj T*
+(Senior Software Engineer at Globex Robotics) Tj T*
+(Portland, Oregon, United States) Tj T*
+(Summary) Tj T*
+(Engineer who likes turning messy data into tools people trust.) Tj T*
+(Experience) Tj T*
+(Globex Robotics) Tj T*
+(Staff Software Engineer) Tj T*
+(March 2021 - Present \(3 years 8 months\)) Tj T*
+(Portland, Oregon) Tj T*
+(Initech) Tj T*
+(Software Engineer) Tj T*
+(June 2018 - February 2021 \(2 years 9 months\)) Tj T*
+(Page 1 of 2) Tj T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 300 >>
+stream
+BT /F1 11 Tf 14 TL 50 790 Td
+(Hooli) Tj T*
+(Software Engineering Intern) Tj T*
+(June 2017 - September 2017 \(4 months\)) Tj T*
+(Mountain View, California) Tj T*
+(Education) Tj T*
+(Oregon State University) Tj T*
+(Bachelor of Science - BS, Computer Science \(2014 - 2018\)) Tj T*
+(Page 2 of 2) Tj T*
+ET
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000218 00000 n 
+0000000344 00000 n 
+0000001243 00000 n 
+0000001369 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+1720
+%%EOF

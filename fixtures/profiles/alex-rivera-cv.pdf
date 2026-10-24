@@ -1,0 +1,54 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 996 >>
+stream
+BT /F1 11 Tf 14 TL 50 790 Td
+(Alex Rivera) Tj T*
+(Senior Software Engineer) Tj T*
+(Portland, Oregon, USA | alex.rivera@example.com | +1 503 555 0142) Tj T*
+(github.com/alexrivera-dev | alexrivera.example.dev) Tj T*
+() Tj T*
+(EXPERIENCE) Tj T*
+(Globex Robotics - Senior Software Engineer) Tj T*
+(Portland, OR | 2021-03 to present) Tj T*
+(- Led the rewrite of the fleet telemetry pipeline in TypeScript, cutting alert latency by 60%.) Tj T*
+(- Mentored four engineers and ran the frontend guild.) Tj T*
+(- Built a React dashboard used by 300 field technicians.) Tj T*
+(Initech - Software Engineer) Tj T*
+(Remote | 2018-06 to 2021-02) Tj T*
+(- Maintained billing APIs in Node.js and PostgreSQL serving 2M requests per day.) Tj T*
+(- Introduced contract tests that cut production incidents by a third.) Tj T*
+() Tj T*
+(EDUCATION) Tj T*
+(Oregon State University - B.S. Computer Science, 2014 to 2018) Tj T*
+() Tj T*
+(SKILLS) Tj T*
+(TypeScript, React, Node.js, PostgreSQL, Python, Docker, AWS) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000212 00000 n 
+0000000338 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1385
+%%EOF

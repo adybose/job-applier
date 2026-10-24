@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { browser } from 'wxt/browser';
 import { OnboardingView } from './views/OnboardingView';
+import { ProfileView } from './views/ProfileView';
 import { SettingsView } from './views/SettingsView';
 
 const VIEWS = ['Onboarding', 'Profile', 'Run', 'Review', 'Settings', 'Stats'] as const;
@@ -47,6 +48,8 @@ export function App() {
       <main className="app-main">
         {view === null ? null : view === 'Onboarding' ? (
           <OnboardingView onPassed={onboardingPassed} />
+        ) : view === 'Profile' ? (
+          <ProfileView onSaved={() => undefined} />
         ) : view === 'Settings' ? (
           <SettingsView />
         ) : (
