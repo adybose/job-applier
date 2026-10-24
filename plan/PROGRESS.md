@@ -141,3 +141,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - ADR-012: per-site access requested at Start (`sidepanel/run/access.ts`), `optional_host_permissions` only; manifest test updated.
 - `pnpm test:e2e:ollama` verified against real `gemma3:4b-it-qat` through a temporary second Ollama on 127.0.0.1:11436 started with `OLLAMA_ORIGINS=chrome-extension://*` (the default Ollama on 11434 was left untouched; it still returns 403 to extensions). Set `LAZYAPPLY_OLLAMA_URL` to point the suite at it. Expect timeout is 120 s in this mode.
 - Result: all 5 P0 fixtures run to review with the real model, never submitting; the handoff and review suites pass too (10 passed, 1 mock-only skipped, 1.6 min). One full application took 10–15 s of agent time on this Mac (model warm).
+
+## 2026-10-25 — T17 README, privacy, demo script, DEV post draft
+
+- `README.md`: pitch, demo GIF slot, three-command setup, OLLAMA_ORIGINS per OS, Mermaid architecture, the three stages, routing table, privacy and safety guarantees, model presets, development commands, license, dated changelog with the deadline rule.
+- `docs/demo-script.md`: 60–90 s shot list with the fictional Alex Rivera profile and a fixture fallback. `docs/devto-post.md`: full draft with all six required sections, measured numbers (`pnpm measure`), the decisions-log story, and TODOs for the author's own story, video and repo link.
+- Side panel shows "The local model is thinking about the remaining questions…" while the planner or drafter is running.
+- Measured with real Gemma 3 4B (warm): Greenhouse 8.3 s / 9 auto / 10 approvals / 2 handoffs; Lever 6.7 s / 10 / 5 / 2; Ashby 5.6 s / 5 / 7 / 2.
+- All P0 tasks done. Next: T18 (answer memory + Stats, P1).

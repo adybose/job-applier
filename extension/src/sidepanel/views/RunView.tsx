@@ -88,6 +88,9 @@ function Status({ state }: { state: RunState }) {
       <p className="phase" role="status">
         {PHASE_LABEL[state.phase]}
       </p>
+      {state.pendingWork > 0 && state.phase !== 'PAUSED' && (
+        <p className="thinking muted">The local model is thinking about the remaining questions…</p>
+      )}
       {total > 0 && (
         <div className="progress">
           <progress max={total} value={done} aria-label="Required fields done" />
