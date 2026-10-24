@@ -46,3 +46,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Real model check (`LAZYAPPLY_OLLAMA=1 pnpm vitest run extract.ollama`): `gemma3:4b-it-qat` extracts both fixtures correctly in ~12–14 s each (~45 tok/s output on this Mac). It invented job bullets for the LinkedIn export until the grounding filter was added.
 - Tests: 69 unit (+2 opt-in Ollama) and 7 e2e passing; typecheck and lint clean. AC-PI-1..8 and AC-PS-8 covered; AC-PI-9 moved to T09 (policy).
 - Next: T05 (form fixtures).
+
+## 2026-10-25 — T05 Fixtures
+
+- Replica fixtures (ADR-007): `greenhouse.html` (classic board, React-Select race combobox, g-recaptcha), `greenhouse-embed.html` (careers page with the form in a cross-origin iframe on :4174), `lever.html` (h-captcha, radio custom question, work-samples upload), `ashby.html` (React-style controlled inputs, visually hidden resume input, Yes/No toggles, radio EEO, cf-turnstile), `generic.html` (all 8 label strategies, two-level open shadow DOM, password field, "Apply with LinkedIn", hidden/disabled/zero-size/honeypot fields, contenteditable, Apply/Send/Finish/Go/Submit application buttons).
+- Every job description has a prompt-injection line.
+- `fixtures/shared/fixture.js`: Submit click recording, React value-tracker emulation, React-Select-like combobox, Yes/No toggles.
+- Tests: `e2e/fixtures.spec.ts` 11/11 (required elements, Submit recorded without navigation, no remote URLs, controlled-input semantics, cross-origin embed, combobox). Lint and typecheck clean.
+- Next: T06 (FormSnapshot).

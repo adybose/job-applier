@@ -23,6 +23,10 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules,
   },
   {
+    files: ['fixtures/**/*.js'],
+    languageOptions: { sourceType: 'script', globals: { ...globals.browser } },
+  },
+  {
     files: ['e2e/**/*.ts', 'mock-model/**/*.ts', 'scripts/**/*.ts', '*.config.ts'],
     languageOptions: { globals: { ...globals.node } },
   },

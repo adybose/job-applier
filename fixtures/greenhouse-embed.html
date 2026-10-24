@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Careers at Acme Robotics</title>
+    <link rel="stylesheet" href="shared/fixture.css" />
+  </head>
+  <!-- A company careers page embedding the Greenhouse form in a cross-origin iframe (port 4174). -->
+  <body>
+    <header><h1>Careers at Acme Robotics</h1></header>
+    <main>
+      <article>
+        <h2>Senior Frontend Engineer</h2>
+        <p>Portland, OR (Hybrid)</p>
+        <p>
+          Join the team that builds the dashboards operators use to watch and steer 2,000 warehouse robots in real
+          time. You'll write React and TypeScript every day and work closely with robotics engineers.
+        </p>
+      </article>
+      <div id="grnhse_app">
+        <iframe id="grnhse_iframe" title="Greenhouse Job Board" src="http://127.0.0.1:4174/greenhouse.html?embed=1" width="100%" height="2600" style="border: 0"></iframe>
+      </div>
+    </main>
+    <script src="shared/fixture.js"></script>
+  </body>
+</html>

@@ -49,3 +49,11 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Spec 02 said every leaf carries a source and the CV is stored as a Blob.
 - **Decision:** Sources are per scalar and per list entry (one job, one skill), not per field inside a job: the editor shows one badge per job. Files are stored as `ArrayBuffer` + name/type, so the background can send bytes to a content script to rebuild a `File` for upload. AC-PI-9 (LinkedIn PDF as resume needs approval) is enforced by the policy engine in T09.
 - **Consequences:** Spec 02 R-PI-10/R-PI-12 updated.
+
+## ADR-007: Hand-built ATS replica fixtures
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** `fixtures/README.md` describes capturing real ATS pages and anonymizing them. With the deadline a day away, capturing and scrubbing four live ATS pages (and re-creating their client-side behavior) would cost hours, and verbatim job text has copyright concerns.
+- **Decision:** Write replica fixtures that reproduce each ATS's markup patterns from public knowledge of their DOM (Greenhouse classic ids and `job_application[...]` names, Lever `application-question` lists and `urls[...]` names, Ashby `_systemfield_*` ids with React-style controlled inputs and Yes/No toggles, a generic form covering every label strategy). Behavior that matters to the agent (controlled inputs, React-Select comboboxes, cross-origin iframe embed, Submit click recording) is reproduced in `fixtures/shared/fixture.js` and verified by `e2e/fixtures.spec.ts`.
+- **Consequences:** Real captures remain a P1 improvement. The demo still runs on a real Greenhouse posting (spec 11), which is the true end-to-end check.

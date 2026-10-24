@@ -8,7 +8,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | [x] | T02 | Model client (Ollama native + OpenAI-compat), `isLoopbackUrl` guard, 4B/12B presets with Mapping/Drafting slots, onboarding checks, quick benchmark, local call stats | P0 | T01 | 07, 01 R-PS-2 | AC-MR-1..9 and AC-PS-1/2 pass as unit tests |
 | [x] | T03 | Mock model server and Playwright harness with network-guard test | P0 | T01 | 10 R-TE-3/7/9 | `pnpm test:e2e` loads the extension, guard test passes, and fails when a non-loopback fetch is injected |
 | [x] | T04 | Profile schema, PDF text extraction, LinkedIn detection, CV/LinkedIn prompts, merge with conflicts, IndexedDB file store, profile editor | P0 | T02 | 02 | AC-PI-1..9 pass |
-| [ ] | T05 | Fixtures: Greenhouse, Lever, Ashby, generic (anonymized, per fixtures/README.md) | P0 | T03 | 10 R-TE-4, fixtures/README.md | Each fixture has all required elements and records Submit clicks |
+| [x] | T05 | Fixtures: Greenhouse, Lever, Ashby, generic (anonymized, per fixtures/README.md) | P0 | T03 | 10 R-TE-4, fixtures/README.md | Each fixture has all required elements and records Submit clicks |
 | [ ] | T06 | FormSnapshot: labels, kinds, options, shadow DOM, iframes, honeypots, blockers, JD extraction, stable ids, re-snapshot | P0 | T05 | 03 | AC-PP-1..9 pass |
 | [ ] | T07 | Actions: React-safe fill, contenteditable, select/combobox/radio, checkbox, resume upload, read-back verify and retry, click gate, highlight overlay | P0 | T06 | 04, 01 R-PS-7..9 | AC-AC-1..9 pass |
 | [ ] | T08 | Deterministic mapper (stage 1) | P0 | T04, T06 | 05 R-AL-3/4 | AC-AL-2 passes; mapper fills all identity/contact/link fields on every fixture |
