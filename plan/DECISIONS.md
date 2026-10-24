@@ -16,4 +16,20 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Status:** Proposed (confirm during T01/T06)
 - **Context:** Spec 01 prefers minimal host permissions; spec 03 needs `all_frames` injection into cross-origin ATS iframes.
 - **Decision:** Start with `activeTab` + `scripting` and inject with `chrome.scripting.executeScript({ target: { tabId, allFrames: true } })` when a run starts. If `activeTab` does not grant access to cross-origin iframes, add `optional_host_permissions` for known ATS hosts, requested at run time.
-- **Consequences:** No broad `<all_urls>` permission at install time.
+- **Consequences:** No broad `<all_urls>` permission at install time. T01 adds `host_permissions` for `http://localhost/*` and `http://127.0.0.1/*` only (model endpoint and loopback test fixtures); the content script uses WXT `registration: "runtime"` so it is not in the manifest.
+
+## ADR-003: Drop `[::1]` as a model endpoint host
+
+- **Date:** 2026-10-24
+- **Status:** Accepted
+- **Context:** Spec 01 listed `[::1]` as an allowed loopback host. CSP host-source syntax cannot express IPv6 literals, and Chrome match patterns for `host_permissions` do not reliably accept them either, so `[::1]` could pass validation and then be blocked at fetch time.
+- **Decision:** Allow only `localhost` and `127.0.0.1`. `isLoopbackUrl` rejects `[::1]` with the normal "must run on this computer" message. Specs 01 R-PS-2/R-PS-3/AC-PS-2 updated.
+- **Consequences:** Users with an IPv6-only local server use `localhost` instead. No change to the privacy guarantee.
+
+## ADR-004: Toolchain versions
+
+- **Date:** 2026-10-24
+- **Status:** Accepted
+- **Context:** Current releases on 2026-10-24 are TypeScript 7.0, React 19.3, zod 4.6, Vitest 5, ESLint 10. typescript-eslint 8.72 requires TypeScript `<6.1`.
+- **Decision:** Pin TypeScript 6.0.3 so linting works. Use React 19 (CLAUDE.md said React 18; nothing depends on 18). Use zod 4's built-in `z.toJSONSchema` instead of `zod-to-json-schema` (spec 02 R-PI-5 updated). All versions pinned exactly in `package.json`.
+- **Consequences:** Revisit TypeScript 7 once typescript-eslint supports it.

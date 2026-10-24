@@ -1,0 +1,106 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #5c5c5c;
+  --border: #d4d4d4;
+  --accent: #1f5fbf;
+  --accent-fg: #ffffff;
+  --surface: #f5f5f5;
+  --warn: #8a5a00;
+  --focus: #1f5fbf;
+  color-scheme: light;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161616;
+    --fg: #ececec;
+    --muted: #a8a8a8;
+    --border: #3a3a3a;
+    --accent: #7fb0ff;
+    --accent-fg: #0b1a33;
+    --surface: #222222;
+    --warn: #f0c060;
+    --focus: #7fb0ff;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.app-header {
+  padding: 12px 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab[aria-current='page'] {
+  border-color: var(--border);
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.app-main {
+  padding: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+input,
+select,
+textarea {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}

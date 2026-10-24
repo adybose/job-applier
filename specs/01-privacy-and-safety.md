@@ -9,9 +9,9 @@ These rules are non-negotiable. They are enforced in code and verified by tests,
 ### Data locality
 
 - **R-PS-1** The profile, original CV and LinkedIn files, saved answers, page contents, job descriptions, and run logs are stored only in `chrome.storage.local` and IndexedDB inside the extension origin.
-- **R-PS-2** The model endpoint must have a loopback host: `localhost`, `127.0.0.1`, or `[::1]`. The Settings form and the model client both reject any other host (validated by a single shared function `isLoopbackUrl`).
+- **R-PS-2** The model endpoint must have a loopback host: `localhost` or `127.0.0.1` (`[::1]` is not supported; see DECISIONS.md ADR-003). The Settings form and the model client both reject any other host (validated by a single shared function `isLoopbackUrl`).
 - **R-PS-3** The extension page CSP is:
-  `script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:* http://[::1]:*`
+  `script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:*`
 - **R-PS-4** No analytics, telemetry, remote code, CDN fonts or assets, or third-party error reporting. All assets (including the pdf.js worker) are bundled.
 - **R-PS-5** A "Delete all my data" button in Settings wipes `chrome.storage.local`, `chrome.storage.session`, and every IndexedDB database the extension owns, after an in-panel confirmation.
 - **R-PS-6** Content scripts make no network requests. All model calls go from the background service worker or extension pages.
@@ -39,7 +39,7 @@ These rules are non-negotiable. They are enforced in code and verified by tests,
 ## Acceptance criteria
 
 - **AC-PS-1** Given a model endpoint `http://example.com:11434`, when the user saves Settings, then saving fails with "The model must run on this computer (localhost)."
-- **AC-PS-2** Given each of `http://localhost:11434`, `http://127.0.0.1:1234`, `http://[::1]:8080`, when validated, then `isLoopbackUrl` returns true; given `http://localhost.evil.com`, `http://127.0.0.2.nip.io`, `https://10.0.0.1`, then false.
+- **AC-PS-2** Given each of `http://localhost:11434`, `http://127.0.0.1:1234`, when validated, then `isLoopbackUrl` returns true; given `http://localhost.evil.com`, `http://127.0.0.2.nip.io`, `https://10.0.0.1`, `http://[::1]:8080`, then false.
 - **AC-PS-3** Given an e2e run on every fixture, when all requests from the extension are recorded, then every request URL host is loopback and its port is the configured model port (network-guard test).
 - **AC-PS-4** Given a fixture with buttons "Submit application", "Apply", "Send", "Finish", and an `<input type=submit value="Go">`, when the agent completes a run, then none of them received a click event.
 - **AC-PS-5** Given a model plan that includes `{"action":"click","field_id":<submit id>}`, when the plan is validated, then the action is discarded and logged as blocked.

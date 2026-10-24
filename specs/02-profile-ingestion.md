@@ -15,7 +15,7 @@ Turn a CV PDF and/or a LinkedIn "Save to PDF" export into one structured, user-r
 
 ### Extraction
 
-- **R-PI-5** Extraction uses the Mapping model with a JSON schema derived from the zod `Profile` schema (`zod-to-json-schema`). The output is validated with zod. On failure, retry once with the validation error; on a second failure, show the user an empty editor pre-filled with whatever parsed, plus a plain error message.
+- **R-PI-5** Extraction uses the Mapping model with a JSON schema derived from the zod `Profile` schema (zod 4's built-in `z.toJSONSchema`). The output is validated with zod. On failure, retry once with the validation error; on a second failure, show the user an empty editor pre-filled with whatever parsed, plus a plain error message.
 - **R-PI-6** Text is trimmed to the context budget of the selected preset (spec 07). For long CVs, extraction runs per section chunk and the results are merged.
 
 ### Merge

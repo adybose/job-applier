@@ -15,7 +15,9 @@ If a task would require changing any of these, **stop and ask the user**.
 
 ## Stack
 
-- pnpm, TypeScript (`strict: true`), **WXT** (Vite-based MV3 framework; see `plan/DECISIONS.md` ADR-001), React 18, zod, idb, pdfjs-dist
+- pnpm, TypeScript 6.0 (`strict: true`), **WXT** (Vite-based MV3 framework; see `plan/DECISIONS.md` ADR-001), React 19, zod 4 (use `z.toJSONSchema` for structured output schemas), idb, pdfjs-dist
+- WXT entrypoints in `extension/src/entrypoints/` are thin wrappers; the logic lives in `extension/src/{background,content,sidepanel}`.
+- Homebrew binaries live in `/opt/homebrew/bin`; prefix shell commands with `export PATH="/opt/homebrew/bin:$PATH"` if `pnpm` is not found.
 - Vitest (unit), Playwright (e2e with the unpacked extension)
 - Model runtime: Ollama native `/api/chat` (default) or an OpenAI-compatible `/v1` server (LM Studio, llama.cpp)
 

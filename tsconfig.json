@@ -1,0 +1,13 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": [".wxt/wxt.d.ts", "extension/src", "wxt.config.ts", "vitest.config.ts", "eslint.config.js"]
+}
