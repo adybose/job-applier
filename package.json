@@ -11,17 +11,22 @@
     "postinstall": "wxt prepare",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "wxt build && playwright test",
+    "test:e2e:ollama": "wxt build && LAZYAPPLY_E2E_OLLAMA=1 playwright test",
+    "mock:model": "node mock-model/server.ts 11435",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "idb": "8.0.4",
+    "pdfjs-dist": "6.4.299",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "zod": "4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

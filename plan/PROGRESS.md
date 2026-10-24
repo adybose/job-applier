@@ -28,3 +28,12 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Verified against real Ollama 0.40.10: `/api/version` works, and a `chrome-extension://` Origin gets 403 without `OLLAMA_ORIGINS`, as the CORS check assumes. Started `ollama pull gemma3:4b-it-qat`.
 - Tests: typecheck clean, lint clean, 45/45 unit tests passing (AC-PS-1/2, AC-MR-1..9). Build OK.
 - Next: T03 (mock model server + Playwright network guard).
+
+## 2026-10-25 — T03 Mock model + e2e harness
+
+- `mock-model/server.ts` (Node built-in TS): Ollama `/api/version|tags|chat|embed` and OpenAI `/v1/models|chat/completions` on 127.0.0.1:11435. Replies come from `mock-model/recordings/*.json` (substring match on the prompt) or a schema-driven fallback (`fake-from-schema.ts`). Control endpoints `/__mock/mode` (ok, invalid-json, forbidden, error, delay, models), `/__mock/requests`, `/__mock/reset`.
+- `scripts/static-server.ts` serves `fixtures/` on 127.0.0.1:4173 and :4174 (second origin for cross-origin iframes).
+- Playwright harness (`e2e/harness.ts`): persistent Chromium with the built extension, extension id from the service worker, side panel opened as a tab with the model endpoint pointed at the mock. Every test records extension requests (service worker + extension pages) and fails on teardown if any went anywhere but the model endpoint.
+- `pnpm test:e2e` (mock) and `pnpm test:e2e:ollama` (`LAZYAPPLY_E2E_OLLAMA=1`, real Ollama on localhost:11434).
+- Tests: 5/5 e2e passing — guard unit check, onboarding + benchmark reach only the model (and the real request carries `num_ctx`/`temperature`/`stream:false`), guard flags a request to another loopback port (AC-TE-2), CSP blocks `https://example.com` (AC-PS-10), CORS steps on 403 (AC-MR-5). Unit tests, typecheck, lint green.
+- Next: T04 (profile ingestion).

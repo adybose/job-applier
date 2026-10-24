@@ -9,5 +9,15 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": [".wxt/wxt.d.ts", "extension/src", "wxt.config.ts", "vitest.config.ts", "eslint.config.js"]
+  "include": [
+    ".wxt/wxt.d.ts",
+    "extension/src",
+    "e2e",
+    "mock-model",
+    "scripts",
+    "wxt.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "eslint.config.js"
+  ]
 }
