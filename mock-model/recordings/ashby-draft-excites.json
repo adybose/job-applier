@@ -1,0 +1,4 @@
+{
+  "match": ["prompt:draft", "What excites you about Contoso Health?"],
+  "response": "Small clinics deserve software as good as large hospitals get, and I like shipping features end to end. At Globex Robotics I built a React dashboard used by 300 field technicians and learned how much clear, accessible tools matter to the people using them every day."
+}

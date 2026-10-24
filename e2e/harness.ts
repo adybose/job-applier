@@ -7,6 +7,9 @@ import { findViolations, type ExtensionRequest } from './guard';
 export const USE_OLLAMA = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
 export const MODEL_ORIGIN = USE_OLLAMA ? 'http://localhost:11434' : 'http://127.0.0.1:11435';
 export const MOCK_ORIGIN = 'http://127.0.0.1:11435';
+/** The default endpoint is configured until each test points the panel at the model under test. */
+export const DEFAULT_MODEL_ORIGIN = 'http://localhost:11434';
+export const ALLOWED_MODEL_ORIGINS = [MODEL_ORIGIN, DEFAULT_MODEL_ORIGIN];
 export const FIXTURE_ORIGIN = 'http://127.0.0.1:4173';
 export const FIXTURE_ORIGIN_2 = 'http://127.0.0.1:4174';
 
@@ -70,7 +73,7 @@ export const test = base.extend<Fixtures>({
     });
     await use(log);
     // Every test doubles as a network-guard test.
-    const violations = findViolations(log, extensionId, MODEL_ORIGIN);
+    const violations = findViolations(log, extensionId, ALLOWED_MODEL_ORIGINS);
     if (violations.length) {
       throw new Error(`Extension made requests outside the model endpoint:\n${violations.map((v) => v.url).join('\n')}`);
     }

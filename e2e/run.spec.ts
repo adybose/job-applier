@@ -1,4 +1,4 @@
-import { expect, mockMode, mockReset, startRun, submitClicks, test, USE_OLLAMA } from './harness';
+import { expect, mockMode, mockReset, mockRequests, startRun, submitClicks, test, USE_OLLAMA } from './harness';
 
 
 test.describe('run', () => {
@@ -41,6 +41,22 @@ test.describe('run', () => {
     await expect(panel.locator('.progress')).toContainText('required fields');
     await expect(panel.locator('.log')).toContainText('First Name → Alex (filled)');
     expect(await submitClicks(page)).toBe(0);
+
+    // AC-PS-6 end to end: the posting's injection line reaches the model only inside PAGE_DATA.
+    if (!USE_OLLAMA) {
+      await expect.poll(async () => (await mockRequests()).filter((r) => r.path === '/api/chat').length).toBeGreaterThan(0);
+      for (const r of (await mockRequests()).filter((x) => x.path === '/api/chat')) {
+        const messages = (r.body.messages as { role: string; content: string }[]) ?? [];
+        for (const m of messages) {
+          let at = m.content.indexOf('Ignore previous instructions');
+          while (at !== -1) {
+            expect(m.role).toBe('user');
+            expect(m.content.lastIndexOf('<<<PAGE_DATA', at)).toBeGreaterThan(m.content.lastIndexOf('PAGE_DATA>>>', at));
+            at = m.content.indexOf('Ignore previous instructions', at + 1);
+          }
+        }
+      }
+    }
   });
 
   // AC-HL-8

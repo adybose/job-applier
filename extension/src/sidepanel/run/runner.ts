@@ -22,7 +22,7 @@ export interface PageApi {
 }
 
 export interface Drafter {
-  draft(field: Field, profile: Profile, jobDescription: string | undefined): Promise<Proposal | undefined>;
+  draft(field: Field, profile: Profile, jobDescription: string | undefined, force?: boolean): Promise<Proposal | undefined>;
 }
 
 export interface RunnerDeps {
@@ -168,6 +168,7 @@ export class Runner {
       }
 
       for (const field of forDraft) {
+        if (!this.active) break;
         const proposal = this.deps.drafter ? await this.deps.drafter.draft(field, profile, this.state.jobDescription).catch(() => undefined) : undefined;
         this.decide(field, proposal);
       }
@@ -328,7 +329,7 @@ export class Runner {
   async regenerate(id: string): Promise<Proposal | undefined> {
     const fs = this.state.fields[id];
     if (!fs || !this.deps.drafter) return undefined;
-    const proposal = await this.deps.drafter.draft(fs.field, this.deps.profile, this.state.jobDescription);
+    const proposal = await this.deps.drafter.draft(fs.field, this.deps.profile, this.state.jobDescription, true).catch(() => undefined);
     if (proposal) this.dispatch({ type: 'ROUTED', fieldId: id, route: 'approval', reason: 'Written answer: please review.', proposal });
     return proposal;
   }

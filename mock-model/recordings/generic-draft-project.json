@@ -1,0 +1,4 @@
+{
+  "match": ["prompt:draft", "Tell us about a data project you're proud of."],
+  "response": "At Globex Robotics I led the rewrite of our fleet telemetry pipeline in TypeScript, which cut alert latency by 60%. I also introduced contract tests at Initech that cut production incidents by a third, and that habit of testing data contracts is what I would bring to Fabrikam's parcel pipelines. In total I managed 14 pipelines."
+}

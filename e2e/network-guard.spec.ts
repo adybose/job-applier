@@ -1,5 +1,5 @@
 import { findViolations } from './guard';
-import { expect, FIXTURE_ORIGIN, MODEL_ORIGIN, mockMode, mockRequests, mockReset, test, USE_OLLAMA } from './harness';
+import { ALLOWED_MODEL_ORIGINS, expect, FIXTURE_ORIGIN, MODEL_ORIGIN, mockMode, mockRequests, mockReset, test, USE_OLLAMA } from './harness';
 
 test.describe('network guard', () => {
   test.beforeEach(async () => {
@@ -31,7 +31,7 @@ test.describe('network guard', () => {
     }, `${FIXTURE_ORIGIN}/README.md`);
     await expect.poll(() => extensionRequests.some((r) => r.url.startsWith(FIXTURE_ORIGIN))).toBe(true);
 
-    const violations = findViolations(extensionRequests, extensionId, MODEL_ORIGIN);
+    const violations = findViolations(extensionRequests, extensionId, ALLOWED_MODEL_ORIGINS);
     expect(violations.map((v) => v.url)).toEqual([`${FIXTURE_ORIGIN}/README.md`]);
     // Clear the log so the harness teardown does not fail this intentional violation.
     extensionRequests.length = 0;

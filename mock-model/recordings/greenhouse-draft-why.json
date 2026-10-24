@@ -1,0 +1,4 @@
+{
+  "match": ["prompt:draft", "Why do you want to work at Acme Robotics?"],
+  "response": "I want to build the dashboards Acme operators rely on to steer their robots in real time. At Globex Robotics I rewrote our fleet telemetry pipeline in TypeScript and built a React dashboard used by 300 field technicians, so turning live sensor data into clear views is the work I enjoy most. I would love to bring that to a team that puts safety next to people first."
+}

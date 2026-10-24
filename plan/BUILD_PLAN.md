@@ -17,7 +17,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | [x] | T11 | Agent state machine (reducer) and side panel Run view with live action log, progress, Pause/Stop, tab/panel scoping | P0 | T07, T08, T09, T10 | 05 R-AL-1/2, 08, 01 R-PS-13/14 | AC-AL-1, AC-UI-3, AC-HL-8, AC-PS-9 pass |
 | [x] | T12 | Approval and question cards with batching and "Remember" | P0 | T11 | 06 R-HL-1..4/9/10 | AC-HL-1/2/9, AC-AL-11 pass |
 | [x] | T13 | Handoff cards with overlay, field watching, auto-resume | P0 | T11 | 06 R-HL-5..8 | AC-HL-3..6 pass |
-| [ ] | T14 | Free-text drafting (stage 3) with Regenerate | P0 | T10, T12 | 05 R-AL-10 | AC-AL-10 passes; drafted fields always route to approval |
+| [x] | T14 | Free-text drafting (stage 3) with Regenerate | P0 | T10, T12 | 05 R-AL-10 | AC-AL-10 passes; drafted fields always route to approval |
 | [ ] | T15 | Review screen and Submit highlight | P0 | T12, T13 | 06 R-HL-11..13 | AC-HL-7 passes |
 | [ ] | T16 | Playwright e2e across all P0 fixtures with mock model | P0 | T14, T15 | 10 | AC-TE-1..4 and AC-OV-1/2 pass for all P0 fixtures |
 | [ ] | T17 | README, privacy section, demo script, DEV post draft | P0 | T16 | 11 | AC-DS-1..3 hold |

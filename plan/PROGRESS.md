@@ -111,3 +111,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Handoff cards ("Your turn"): one-sentence instruction, reason, overlay on the field, "I did it" and "Skip". The runner watches every snapshot: a field whose value changes from its card's baseline (not our own write) resolves as "done by you"; a CAPTCHA resolves when its widget disappears or its response token fills; blockers and fields resolve independently while filling continues.
 - Tests: e2e Ashby portfolio upload resolves on its own after `setInputFiles` (AC-HL-3/4), filling continues during the handoff (AC-HL-5), Turnstile token and removed reCAPTCHA resolve (AC-HL-6), "I did it" on the password handoff, typing an answer resolves a waiting question. All green.
 - Next: T14 (free-text drafting).
+
+## 2026-10-25 — T14 Free-text drafting (stage 3)
+
+- `prompts/draft.ts` (v1), `shared/agent/drafter.ts`: one Drafting-slot call per required or cover-letter question at temperature 0.6, 40%/40% budgets, cleanup (quotes, markdown, bullets), sentence-boundary fit to `maxlength` (default 1,200), and code-side grounding: sentences with numbers found in neither the profile nor the posting are dropped and the rationale says so. Optional "anything else?" boxes are not drafted. Regenerate forces a draft. Drafts always route to approval.
+- Real model (`LAZYAPPLY_OLLAMA=1 pnpm vitest run drafter.ollama`): Gemma 3 4B wrote a specific, grounded 3-sentence answer in 4.9 s and ignored the posting's injection line.
+- Network guard: allows the default endpoint as well as the mock, because the panel checks the default before a test points it at the mock (both are configured loopback model endpoints); still flags any other destination, including other loopback ports.
+- Tests: 8 drafter unit tests (AC-AL-10, budget at 8192); e2e drafted essay card, salary question card, and AC-PS-6 checked on real requests (the injection line only appears inside PAGE_DATA). 201 unit + 45 e2e green, twice.
+- Next: T15 (review screen).

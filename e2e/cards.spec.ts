@@ -51,20 +51,28 @@ test.describe('approval and question cards', () => {
     expect(await submitClicks(page)).toBe(0);
   });
 
-  test('a required question without an answer asks you, then fills and can be saved', async ({ context, openPanel }) => {
+  // Spec 05 R-AL-10 / spec 06 R-HL-1: drafted text is always reviewed.
+  test('a required essay question is drafted for review', async ({ context, openPanel }) => {
     const { page, panel } = await startRun(context, openPanel, 'greenhouse.html');
     const why = card(panel, 'Why do you want to work at Acme Robotics?');
-    await expect(why).toContainText('Question');
-    // Non-sensitive answers are remembered by default (R-HL-4).
-    await expect(why.getByRole('checkbox', { name: 'Remember this answer' })).toBeChecked();
-    await why.getByRole('textbox').fill('I want to build the tools warehouse operators trust.');
-    await why.getByRole('button', { name: 'Use this answer' }).click();
-    await expect(page.locator('#job_application_answers_attributes_5_text_value')).toHaveValue(
-      'I want to build the tools warehouse operators trust.',
-    );
-    await expect.poll(async () => (await savedCustom(panel))['Why do you want to work at Acme Robotics?']?.value).toBe(
-      'I want to build the tools warehouse operators trust.',
-    );
+    await expect(why).toContainText('Written answer: please review.');
+    await expect(why).toContainText('300 field technicians');
+    await expect(why.getByRole('button', { name: 'Regenerate' })).toBeVisible();
+    await expect(page.locator('#job_application_answers_attributes_5_text_value')).toHaveValue('');
+    await why.getByRole('button', { name: 'Approve' }).click();
+    await expect(page.locator('#job_application_answers_attributes_5_text_value')).toHaveValue(/300 field technicians/);
+  });
+
+  // R-AL-14 / R-HL-4: "ask me each time" salary becomes a question card.
+  test('a question card asks you, fills, and does not remember sensitive answers by default', async ({ context, openPanel }) => {
+    const { page, panel } = await startRun(context, openPanel, 'greenhouse.html', { askSalary: true });
+    const salary = card(panel, 'Desired salary (USD)');
+    await expect(salary).toContainText('Question');
+    await expect(salary.getByRole('checkbox', { name: 'Remember this answer' })).not.toBeChecked();
+    await salary.getByRole('textbox').fill('175,000');
+    await salary.getByRole('button', { name: 'Use this answer' }).click();
+    await expect(page.locator('#job_application_answers_attributes_4_text_value')).toHaveValue('175,000');
+    expect((await savedCustom(panel))['Desired salary (USD)']).toBeUndefined();
   });
 
   test('skip leaves the field empty and marks it skipped', async ({ context, openPanel }) => {
