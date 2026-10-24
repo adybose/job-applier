@@ -62,3 +62,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Side panel `page.ts`: inject into all frames, snapshot and merge per frame, read combobox options (ADR-008). Test hook `globalThis.__lazyApplyPanel`.
 - Tests: 105 unit (labels in jsdom, button classification) and 24 e2e (AC-PP-1..9 on generic, Greenhouse, Lever, Ashby and the cross-origin Greenhouse embed). Lint and typecheck clean.
 - Next: T07 (actions).
+
+## 2026-10-25 — T07 Actions
+
+- `shared/actions.ts` (zod action union; `click` requires `approvedNav: true`; `upload_file` only `fileKind: "resume"`), `shared/policy/options.ts` (`bestOption`, `declineOption`).
+- `content/actions.ts`: React-safe fill (native setter + input/change/blur, then typing fallback), contenteditable, date/number normalization and maxlength, native select / radio / toggle-button / React-Select selection, checkbox, resume upload through `DataTransfer`, read-back plus 300 ms re-check, overwrite protection (only empty, identical, or our own previous value without `overwrite`), password refusal, in-page submit gate, scroll. `content/overlay.ts`: pointer-transparent highlight overlays with a label.
+- Side panel `page.ts`: `act()` per frame, `resumePayload()` from IndexedDB.
+- Tests: 10 new e2e (AC-AC-1..9, overlays, cross-origin embed), 9 new unit (option matching). All suites green.
+- Next: T08 (deterministic mapper).

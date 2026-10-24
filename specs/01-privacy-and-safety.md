@@ -19,7 +19,7 @@ These rules are non-negotiable. They are enforced in code and verified by tests,
 ### Never submit
 
 - **R-PS-7** A policy function `isSubmitLike(button)` returns true when any of the control's text, `value`, `aria-label`, `title`, or `name` matches (case-insensitive, word-boundary) `submit|apply|send|finish|confirm|complete application`, or when it is `type=submit` / `<input type=submit>` on what appears to be the final step.
-- **R-PS-8** The action layer refuses to click any submit-like control. The only clicks allowed are on buttons the user explicitly approved as "Next/Continue" navigation in the current run, and only if `isSubmitLike` is false for them **or** the user approved that exact element id as navigation.
+- **R-PS-8** The action layer refuses to click any submit-like control, with no exceptions (ADR-010). The only clicks allowed are on buttons the user explicitly approved as "Next/Continue" navigation in the current run (`approvedNav: true`), and only when `isSubmitLike` is false for the live element.
 - **R-PS-9** Pressing Enter in a field is never used as a fill strategy (it can submit forms). `form.submit()` and `requestSubmit()` are never called.
 
 ### Untrusted page content

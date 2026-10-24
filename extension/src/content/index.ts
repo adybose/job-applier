@@ -1,19 +1,21 @@
 import { browser } from 'wxt/browser';
+import type { ActionResult } from '../shared/actions';
 import type { FormSnapshot, Option } from '../shared/snapshot';
+import { perform } from './actions';
 import { readComboboxOptions } from './combobox';
+import { OVERLAY_ATTR } from './overlay';
 import { buildSnapshot } from './snapshot';
 
 export interface ContentApi {
   snapshot(): FormSnapshot;
   readOptions(fieldId: string): Promise<Option[]>;
+  act(action: unknown): Promise<ActionResult>;
 }
 
 declare global {
   // The content script's isolated world is shared by every injection, so this guards re-injection.
   var __lazyApply: ContentApi | undefined;
 }
-
-const OVERLAY_ATTR = 'data-lazyapply-overlay';
 
 function watchMutations(): void {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -36,6 +38,7 @@ export function startContent(): void {
   globalThis.__lazyApply = {
     snapshot: () => buildSnapshot(document),
     readOptions: readComboboxOptions,
+    act: perform,
   };
   watchMutations();
 }

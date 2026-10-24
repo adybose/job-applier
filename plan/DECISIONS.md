@@ -71,3 +71,11 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Date:** 2026-10-25
 - **Status:** Accepted
 - **Decision:** (1) Visually hidden `<input type=file>` behind an upload button is kept; its visibility is judged by its parent. (2) A pair of sibling Yes/No buttons (Ashby) becomes a `radio-group` field with `widget: "toggle-buttons"`. (3) React-Select inputs are `combobox` with `widget: "react-select"`. (4) A wrapping label's text excludes the branch holding the control (Lever wraps upload buttons in the label). (5) A radio group uses its fieldset legend only when the fieldset holds nothing else; otherwise the text before its first option. (6) The longest job description across frames wins.
+
+## ADR-010: No exception to "never click submit-like"
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Spec 01 R-PS-8 allowed clicking a submit-like control if the user approved that exact element as navigation; spec 04 R-AC-7/AC-AC-8 say the in-page check blocks submit-like clicks regardless.
+- **Decision:** Take the stricter rule. The content script refuses every click on a control `isSubmitLike` matches, even with approval; a navigation click also requires `approvedNav: true` in the action schema. A multi-step form whose "next" button says "Continue to submit" is a handoff instead. Combobox selection tries unfiltered fuzzy matching before typing a filter, and never presses Enter (R-PS-9).
+- **Consequences:** Spec 01 R-PS-8 updated. Zero-wrong-submission guarantee does not depend on approval UX.
