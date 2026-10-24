@@ -87,7 +87,7 @@ This project only makes sense with an open-weight model running locally.
 - **No bill per application.** Job seekers are the people least able to pay a metered API for each of the 100 forms they fill in. A model they downloaded once costs nothing per run.
 - **It works offline**, on a train or a flaky connection, as long as the application page loads.
 - **You can swap the model.** Gemma 3 4B is fast; 12B writes better essays if you have the memory; Qwen3 or Llama work through the same settings. You can see exactly what's sent, because it's your own server.
-- **You can read the rules.** The policy that decides what needs your approval is about 150 lines of tested TypeScript. You don't have to trust a vendor's word about what the agent will and won't do.
+- **You can read the rules.** The policy that decides what needs your approval is about 125 lines of tested TypeScript. You don't have to trust a vendor's word about what the agent will and won't do.
 
 ## The Lazy Payoff
 
