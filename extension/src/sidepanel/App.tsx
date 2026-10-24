@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { browser } from 'wxt/browser';
 import { OnboardingView } from './views/OnboardingView';
 import { ProfileView } from './views/ProfileView';
+import { ReviewPanel } from './run/ReviewPanel';
+import { useRun } from './run/useRun';
 import { RunView } from './views/RunView';
 import { SettingsView } from './views/SettingsView';
 
@@ -12,6 +14,7 @@ const ONBOARDING_KEY = 'onboarding.passed';
 
 export function App() {
   const [view, setView] = useState<View | null>(null);
+  const run = useRun();
 
   useEffect(() => {
     // Spec 08 AC-UI-1: Onboarding first until the model checks have passed once.
@@ -52,7 +55,16 @@ export function App() {
         ) : view === 'Profile' ? (
           <ProfileView onSaved={() => setView('Run')} />
         ) : view === 'Run' ? (
-          <RunView onNeedProfile={() => setView('Profile')} />
+          <RunView run={run} onNeedProfile={() => setView('Profile')} />
+        ) : view === 'Review' ? (
+          run.state.phase === 'REVIEW' || run.state.phase === 'DONE' ? (
+            <ReviewPanel state={run.state} runner={run.runner} />
+          ) : (
+            <section aria-labelledby="review-empty">
+              <h2 id="review-empty">Review</h2>
+              <p className="muted">When every required field is done, your review appears here.</p>
+            </section>
+          )
         ) : view === 'Settings' ? (
           <SettingsView />
         ) : (

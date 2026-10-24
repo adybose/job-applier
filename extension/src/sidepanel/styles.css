@@ -431,3 +431,64 @@ button.link {
 .log-failed {
   color: var(--warn);
 }
+
+.review {
+  margin: 12px 0;
+  padding: 12px;
+  border: 2px solid #15803d;
+  border-radius: 8px;
+}
+
+.review h3 {
+  margin-top: 0;
+}
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.review-table th,
+.review-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.review-table th[scope='row'] {
+  font-weight: 400;
+}
+
+.row-warn {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}
+
+.warn-text {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.decision {
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.decision-auto {
+  color: var(--muted);
+}
+
+.decision-approved,
+.decision-edited {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.decision-human {
+  border-color: #d97706;
+}

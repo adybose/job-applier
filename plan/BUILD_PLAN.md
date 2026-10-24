@@ -18,7 +18,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | [x] | T12 | Approval and question cards with batching and "Remember" | P0 | T11 | 06 R-HL-1..4/9/10 | AC-HL-1/2/9, AC-AL-11 pass |
 | [x] | T13 | Handoff cards with overlay, field watching, auto-resume | P0 | T11 | 06 R-HL-5..8 | AC-HL-3..6 pass |
 | [x] | T14 | Free-text drafting (stage 3) with Regenerate | P0 | T10, T12 | 05 R-AL-10 | AC-AL-10 passes; drafted fields always route to approval |
-| [ ] | T15 | Review screen and Submit highlight | P0 | T12, T13 | 06 R-HL-11..13 | AC-HL-7 passes |
+| [x] | T15 | Review screen and Submit highlight | P0 | T12, T13 | 06 R-HL-11..13 | AC-HL-7 passes |
 | [ ] | T16 | Playwright e2e across all P0 fixtures with mock model | P0 | T14, T15 | 10 | AC-TE-1..4 and AC-OV-1/2 pass for all P0 fixtures |
 | [ ] | T17 | README, privacy section, demo script, DEV post draft | P0 | T16 | 11 | AC-DS-1..3 hold |
 | [ ] | T18 | Answer memory (token overlap) and Stats view | P1 | T12 | 09, 08 R-UI-2/7 | AC-AM-1..6 pass; Stats shows counts and per-model latency |

@@ -201,8 +201,10 @@ export class Runner {
 
   // ---- actions ---------------------------------------------------------------------------------
 
-  private enqueue(task: () => Promise<void>): void {
-    this.queue.push(task);
+  /** Human answers jump the queue: the person is waiting on them, the page is not. */
+  private enqueue(task: () => Promise<void>, urgent = false): void {
+    if (urgent) this.queue.unshift(task);
+    else this.queue.push(task);
     void this.drain();
   }
 
@@ -301,7 +303,7 @@ export class Runner {
     const card = this.state.cards.find((c) => c.id === id);
     if (!card || !this.active) return false;
     return new Promise((resolve) => {
-      this.enqueue(async () => resolve(await this.apply(id, value, edited ? 'edited' : 'approved', true)));
+      this.enqueue(async () => resolve(await this.apply(id, value, edited ? 'edited' : 'approved', true)), true);
     });
   }
 

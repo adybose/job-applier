@@ -119,3 +119,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Network guard: allows the default endpoint as well as the mock, because the panel checks the default before a test points it at the mock (both are configured loopback model endpoints); still flags any other destination, including other loopback ports.
 - Tests: 8 drafter unit tests (AC-AL-10, budget at 8192); e2e drafted essay card, salary question card, and AC-PS-6 checked on real requests (the injection line only appears inside PAGE_DATA). 201 unit + 45 e2e green, twice.
 - Next: T15 (review screen).
+
+## 2026-10-25 — T15 Review screen and Submit highlight
+
+- Review panel (`sidepanel/run/ReviewPanel.tsx`): "Review and click Submit yourself.", required-field count, a table of every field Lazy Apply touched (value and Auto / Approved / Edited / You did it / Skipped; click to scroll), skipped required fields flagged in amber with an alert, optional fields left empty listed separately, "Show me Submit" and "I've submitted it" (→ DONE). Entering REVIEW scrolls to and outlines the page's Submit in green (`pickSubmit` prefers "submit", ignores OAuth buttons); it is never clicked.
+- Run state moved up to `App` (`useRun`), so a run survives switching tabs; the Review tab shows the same review.
+- Runner: human answers jump the action queue (an approval no longer waits behind ~1 s-per-field auto-fills).
+- Tests: e2e full Lever run to review (AC-HL-7, AC-OV-1: decisions in the table, Submit outlined, zero clicks and submit events, tab switching, DONE) and skipped-required flagging. All suites green.
+- Next: T16 (e2e across all fixtures).

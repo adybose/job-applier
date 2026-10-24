@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { requiredProgress, type Phase, type RunState } from '../../shared/agent/machine';
 import { CardList } from '../run/Cards';
 import { ReviewPanel } from '../run/ReviewPanel';
-import { useRun } from '../run/useRun';
+import type { RunHandle } from '../run/useRun';
 
 const PHASE_LABEL: Record<Phase, string> = {
   IDLE: 'Ready',
@@ -17,8 +17,8 @@ const PHASE_LABEL: Record<Phase, string> = {
   STOPPED: 'Stopped',
 };
 
-export function RunView({ onNeedProfile }: { onNeedProfile: () => void }) {
-  const { state, error, start, runner } = useRun();
+export function RunView({ run, onNeedProfile }: { run: RunHandle; onNeedProfile: () => void }) {
+  const { state, error, start, runner } = run;
   const [needProfile, setNeedProfile] = useState(false);
   const running = !['IDLE', 'STOPPED', 'DONE', 'NEEDS_PROFILE'].includes(state.phase);
 

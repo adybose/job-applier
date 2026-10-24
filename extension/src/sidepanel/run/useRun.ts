@@ -17,6 +17,9 @@ export async function currentTabId(): Promise<number | undefined> {
   return tab?.id;
 }
 
+export type RunHandle = ReturnType<typeof useRun>;
+
+/** Owned by App so a run survives switching views; it ends when the panel closes. */
 export function useRun() {
   const [state, setState] = useState<RunState>(initialState);
   const [error, setError] = useState<string | null>(null);
