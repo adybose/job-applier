@@ -492,3 +492,47 @@ button.link {
 .decision-human {
   border-color: #d97706;
 }
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.stat-tiles div {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.stat-tiles dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.stat-tiles dd {
+  margin: 4px 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bench {
+  margin-top: 12px;
+}
+
+.saved-answers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved-answers li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.saved-answers p {
+  margin: 2px 0;
+}

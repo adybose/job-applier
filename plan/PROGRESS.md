@@ -149,3 +149,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Side panel shows "The local model is thinking about the remaining questions…" while the planner or drafter is running.
 - Measured with real Gemma 3 4B (warm): Greenhouse 8.3 s / 9 auto / 10 approvals / 2 handoffs; Lever 6.7 s / 10 / 5 / 2; Ashby 5.6 s / 5 / 7 / 2.
 - All P0 tasks done. Next: T18 (answer memory + Stats, P1).
+
+## 2026-10-25 — T18 Answer memory and Stats (P1)
+
+- `shared/memory/answers.ts`: normalized question keys (boilerplate and intent words dropped, synonyms such as salary≈compensation, relocate≈relocating), Jaccard ≥ 0.6 with kind compatibility and option snapping; IndexedDB `answers` store (DB v3). Consulted after the mapper and before the model; matches are proposals with `origin: "memory"` and go through the policy (sensitive → approval; remembered essays always → approval, a new route rule). "Remember" writes profile.custom and memory; reuse bumps `usedCount`. Profile view lists saved answers with edit/delete.
+- `shared/stats/runs.ts` + Stats view: one record per application at its first review (auto/approved/edited/human/skipped, time with cards open + 1 min, agent time), minutes-saved estimate (17 − human minutes), per-model calls/latency/tokens per second from local call logs. Side panel shows when the model is still thinking.
+- Harness fix: `openFixture` picks the newest tab when a fixture is open twice.
+- Tests: 12 new unit (AC-AM-1..5, stats), e2e second application faster from memory plus Stats (AC-AM-6). All suites green.
+- Next: T19 (multi-step forms, P1).

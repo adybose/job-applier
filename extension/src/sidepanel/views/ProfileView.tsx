@@ -6,6 +6,7 @@ import { resolveConflict, type ConflictChoice } from '../../shared/profile/merge
 import type { Profile } from '../../shared/profile/schema';
 import { loadDraft, loadProfile, saveDraft, saveProfile, type ProfileDraft } from '../../shared/profile/storage';
 import { ProfileEditor } from '../components/ProfileEditor';
+import { SavedAnswers } from '../components/SavedAnswers';
 import { getDocument } from '../pdfjs';
 
 export function ProfileView({ onSaved }: { onSaved: () => void }) {
@@ -77,6 +78,7 @@ export function ProfileView({ onSaved }: { onSaved: () => void }) {
               update({ ...draft, ...resolveConflict(draft.profile, draft.conflicts, path, choice) })
             }
           />
+          <SavedAnswers />
           <div className="actions sticky-actions">
             <button type="button" className="primary" onClick={save}>
               Save profile

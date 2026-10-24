@@ -70,6 +70,10 @@ export function route(field: Field, proposal: Proposal | undefined, ctx: RouteCo
   }
   if (proposal.sensitive) return { route: 'approval', reason: 'The model flagged this as sensitive.', category };
   if (proposal.origin === 'draft') return { route: 'approval', reason: 'Written answer: please review.', category };
+  // Spec 09 AC-AM-3: an essay saved for one company is reviewed before it goes to another.
+  if (proposal.origin === 'memory' && (field.kind === 'textarea' || field.kind === 'contenteditable')) {
+    return { route: 'approval', reason: 'Your saved answer from another application: please review.', category };
+  }
   if (!isEmpty(field) && !same(field.value, proposal.value) && !same(ctx.written.get(field.id) ?? '', field.value)) {
     return { route: 'approval', reason: 'This would replace what is already there.', category };
   }

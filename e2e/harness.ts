@@ -116,7 +116,8 @@ export async function openFixture(context: BrowserContext, panel: Page, path: st
   await page.waitForLoadState('load');
   const tabId = await panel.evaluate(async (url) => {
     const tabs = await (globalThis as unknown as { chrome: { tabs: { query(q: object): Promise<{ id: number; url: string }[]> } } }).chrome.tabs.query({});
-    return tabs.find((t) => t.url === url)?.id ?? -1;
+    // The newest tab with this URL (tests may open the same fixture twice).
+    return Math.max(-1, ...tabs.filter((t) => t.url === url).map((t) => t.id));
   }, `${FIXTURE_ORIGIN}/${path}`);
   if (tabId < 0) throw new Error(`tab for ${path} not found`);
   return { page, tabId };

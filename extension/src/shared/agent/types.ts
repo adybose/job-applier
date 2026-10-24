@@ -14,4 +14,6 @@ export interface Proposal {
   origin: Origin;
   /** Set when the only "resume" available is the LinkedIn PDF (spec 02 R-PI-13). */
   usesLinkedinPdf?: boolean;
+  /** The answer-memory entry this came from (spec 09). */
+  memoryKey?: string;
 }

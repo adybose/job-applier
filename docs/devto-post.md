@@ -24,6 +24,7 @@ Applying for jobs is mostly typing the same things into slightly different boxes
 - drafts the essay questions from your real experience and the job description, for you to approve or edit,
 - lines up **one-click approvals** for anything sensitive: salary, visa and work authorization, diversity questions (it proposes "Decline to self-identify"), consent boxes,
 - hands you the parts only you should do (the CAPTCHA, a portfolio upload, a password), outlines them on the page, and notices when you've done them,
+- remembers the answers you tell it to, so "Are you willing to relocate?" is asked once, however it's worded next time,
 - and finishes with a review of every field it touched, with the **Submit button outlined in green. It never clicks it.**
 
 On a Greenhouse-style form, Gemma 3 4B finished its part in **8.3 seconds**. 9 fields were filled automatically, 10 waited for one click each (including the drafted essay), and 2 were mine: the cover letter upload and the CAPTCHA.
@@ -103,10 +104,12 @@ Other measurements: reading a CV PDF into a structured profile took 12–14 s, p
 
 Approvals take seconds each. With an essay you only have to read and tweak, that puts an application at about two to three minutes of my time instead of fifteen to twenty. Most of what's left is the CAPTCHA and the files I choose to upload. Those minutes are the ones I *should* be spending.
 
-<!-- TODO: after a week of real use, add real counts from the Stats view (applications, minutes saved, auto vs approved vs you). -->
+The extension keeps these numbers for you in a local **Stats** view: applications filled, an estimate of minutes saved, who filled what, and each model's speed.
+
+<!-- TODO: after a week of real use, add your own counts from the Stats view. -->
 
 ## What's next
 
-Answer memory, so "Are you willing to relocate?" is asked once ever. A Stats view for the payoff numbers. Multi-step forms with approved "Next" clicks. Workday's shadow DOM. And a vision fallback for scanned CVs using Gemma's multimodal models.
+Multi-step forms with approved "Next" clicks, local embeddings (EmbeddingGemma) for answer memory. Workday's shadow DOM. And a vision fallback for scanned CVs using Gemma's multimodal models.
 
 Thanks for reading. If you try it, the Onboarding screen will tell you exactly what's missing on your machine.

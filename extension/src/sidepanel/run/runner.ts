@@ -6,7 +6,10 @@ import type { Action, ActionResult } from '../../shared/actions';
 import type { ModelClient } from '../../shared/model/client';
 import type { ModelSettings } from '../../shared/model/settings';
 import { handoffInstruction, route } from '../../shared/policy/route';
+import { findMatch, type SavedAnswer } from '../../shared/memory/answers';
+import { sensitiveCategory } from '../../shared/policy/sensitive';
 import type { Profile } from '../../shared/profile/schema';
+import type { RunRecord } from '../../shared/stats/runs';
 import type { Field, FormSnapshot, Option } from '../../shared/snapshot';
 
 // Spec 05: the run's effects. State lives in the pure reducer (shared/agent/machine.ts); this class
@@ -34,6 +37,12 @@ export interface RunnerDeps {
   mapperContext: MapperContext;
   drafter?: Drafter;
   saveProfile?: (profile: Profile) => Promise<unknown>;
+  memory?: {
+    list(): Promise<SavedAnswer[]>;
+    save(input: { questionText: string; answer: string; fieldKind: Field['kind']; sensitive: boolean }): Promise<void>;
+    markUsed(key: string): Promise<void>;
+  };
+  recordRun?: (run: RunRecord) => Promise<void>;
   pollMs?: number;
 }
 
@@ -56,6 +65,12 @@ export class Runner {
   /** Fields with an action in flight, and the last value we tried to write, so our own writes never look human. */
   private inFlight = new Set<string>();
   private attempted = new Map<string, string>();
+  // Lazy Payoff bookkeeping (spec 08 R-UI-7).
+  private startedAt = 0;
+  private agentDoneAt = 0;
+  private cardsOpenSince: number | undefined;
+  private humanMs = 0;
+  private recorded = false;
 
   constructor(private readonly deps: RunnerDeps) {}
 
@@ -68,6 +83,13 @@ export class Runner {
   private dispatch(event: RunEvent): void {
     const before = this.state;
     this.state = reduce(this.state, event);
+    const now = Date.now();
+    if (this.state.cards.length && this.cardsOpenSince === undefined) this.cardsOpenSince = now;
+    if (!this.state.cards.length && this.cardsOpenSince !== undefined) {
+      this.humanMs += now - this.cardsOpenSince;
+      this.cardsOpenSince = undefined;
+    }
+    if (!this.agentDoneAt && before.pendingWork > 0 && this.state.pendingWork === 0) this.agentDoneAt = now;
     if (this.state !== before) for (const fn of this.listeners) fn(this.state);
     if (before.phase !== this.state.phase) this.onPhase(before.phase);
   }
@@ -79,6 +101,7 @@ export class Runner {
   // ---- lifecycle -----------------------------------------------------------------------------
 
   async start(): Promise<void> {
+    this.startedAt = Date.now();
     this.dispatch({ type: 'START', hasProfile: true });
     try {
       await this.deps.page.injectContent(this.deps.tabId);
@@ -140,11 +163,12 @@ export class Runner {
       const { profile, mapperContext } = this.deps;
       const forModel: Field[] = [];
       const forDraft: Field[] = [];
+      const saved = (await this.deps.memory?.list().catch(() => [])) ?? [];
 
       for (const fs of fresh) {
         if (!fs) continue;
         const field = fs.field;
-        const proposal = mapField(field, profile, mapperContext);
+        const proposal = mapField(field, profile, mapperContext) ?? this.fromMemory(field, saved);
         if (proposal) this.decide(field, proposal);
         else if (isFreeText(field)) forDraft.push(field);
         else if (['file', 'password', 'unknown'].includes(field.kind)) this.decide(field, undefined);
@@ -175,6 +199,22 @@ export class Runner {
     } finally {
       this.dispatch({ type: 'WORK', delta: -1 });
     }
+  }
+
+  /** Spec 09 R-AM-5: a remembered answer is a proposal like any other; the policy still decides. */
+  private fromMemory(field: Field, saved: readonly SavedAnswer[]): Proposal | undefined {
+    const match = findMatch(field, saved);
+    if (!match) return undefined;
+    return {
+      fieldId: field.id,
+      action: field.kind === 'select' || field.kind === 'radio-group' || field.kind === 'combobox' ? 'select_option' : field.kind === 'checkbox' ? 'set_checked' : 'fill',
+      value: match.value,
+      confidence: match.score,
+      rationale: `You answered "${match.entry.questionText}" before.`,
+      sensitive: match.entry.sensitive,
+      origin: 'memory',
+      memoryKey: match.entry.normalizedKey,
+    };
   }
 
   /** Spec 05 R-AL-11: the policy routes; autos are queued, everything else becomes a card. */
@@ -240,6 +280,7 @@ export class Runner {
       .finally(() => this.inFlight.delete(fieldId));
     if (result.ok) {
       this.written.set(fieldId, result.value);
+      if (fs.proposal?.origin === 'memory' && fs.proposal.memoryKey) void this.deps.memory?.markUsed(fs.proposal.memoryKey).catch(() => undefined);
       this.dispatch({ type: 'FILLED', fieldId, value: result.value, decidedBy });
       return true;
     }
@@ -325,6 +366,9 @@ export class Runner {
       custom: { ...this.deps.profile.custom, [key]: { value: value.trim(), source: 'user' } },
     };
     await this.deps.saveProfile?.(this.deps.profile);
+    await this.deps.memory
+      ?.save({ questionText: key, answer: value, fieldKind: field.kind, sensitive: !!sensitiveCategory(field) })
+      .catch(() => undefined);
   }
 
   /** Re-drafts a free-text answer (spec 06 R-HL-1 "Regenerate"). */
@@ -394,8 +438,33 @@ export class Runner {
   // ---- review ----------------------------------------------------------------------------------
 
   private onPhase(previous: RunState['phase']): void {
-    if (this.state.phase === 'REVIEW' && previous !== 'REVIEW') void this.highlightSubmit();
+    if (this.state.phase === 'REVIEW' && previous !== 'REVIEW') {
+      void this.highlightSubmit();
+      void this.record();
+    }
     if (this.state.phase === 'SCANNING') void this.clearHighlights();
+  }
+
+  /** Spec 08 R-UI-2/R-UI-7: one summary per application, the first time it reaches review. */
+  private async record(): Promise<void> {
+    if (this.recorded || !this.deps.recordRun) return;
+    this.recorded = true;
+    const decided = Object.values(this.state.fields).filter((f) => f.decidedBy && f.route !== 'skip');
+    const count = (d: string) => decided.filter((f) => f.decidedBy === d).length;
+    const host = URL.canParse(this.state.url ?? '') ? new URL(this.state.url ?? '').hostname : '';
+    await this.deps
+      .recordRun({
+        ts: Date.now(),
+        host,
+        auto: count('auto'),
+        approved: count('approved'),
+        edited: count('edited'),
+        human: count('human'),
+        skipped: count('skipped'),
+        humanSeconds: Math.round((this.humanMs + (this.cardsOpenSince ? Date.now() - this.cardsOpenSince : 0)) / 1000) + 60,
+        agentSeconds: Math.round(((this.agentDoneAt || Date.now()) - this.startedAt) / 100) / 10,
+      })
+      .catch(() => undefined);
   }
 
   /** Spec 06 R-HL-13: point at Submit. The agent never clicks it. */

@@ -6,6 +6,7 @@ import { ReviewPanel } from './run/ReviewPanel';
 import { useRun } from './run/useRun';
 import { RunView } from './views/RunView';
 import { SettingsView } from './views/SettingsView';
+import { StatsView } from './views/StatsView';
 
 const VIEWS = ['Onboarding', 'Profile', 'Run', 'Review', 'Settings', 'Stats'] as const;
 type View = (typeof VIEWS)[number];
@@ -67,6 +68,8 @@ export function App() {
           )
         ) : view === 'Settings' ? (
           <SettingsView />
+        ) : view === 'Stats' ? (
+          <StatsView />
         ) : (
           <Placeholder name={view} />
         )}

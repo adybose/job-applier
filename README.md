@@ -63,6 +63,7 @@ flowchart LR
 | Handoff | CAPTCHAs, passwords and sign-ups, non-CV uploads, video recorders, e-signatures, fields that would not stick | "Your turn" card, the field outlined on the page; it notices when you're done |
 
 5. **Review.** A table of every field it touched and how (Auto, Approved, Edited, You did it, Skipped). Submit is outlined in green. **It never clicks it.**
+6. **It learns your answers, locally.** "Remember this answer" saves to your profile and to an answer memory that matches reworded questions ("Would you consider relocating?" ≈ "Are you willing to relocate?"). Matches still go through the policy, so sensitive ones come back pre-filled for approval. The **Stats** view shows applications filled, an estimate of minutes saved, who filled what, and each model's speed, all computed on your machine.
 
 ## Privacy and safety guarantees
 
@@ -114,6 +115,7 @@ The project was built specs-first: `specs/` holds the requirements and acceptanc
 The challenge deadline is **2026-10-25 23:59 PDT**. Anything committed after it is marked _(after deadline)_.
 
 - **2026-10-25**
+  - Answer memory (word overlap with synonyms) and a local Stats view.
   - Real Gemma 3 4B end-to-end: every P0 fixture runs to review and never submits; per-site access requested at Start.
   - Review screen with a decisions table and the Submit outline; the run survives switching views.
   - Grounded essay drafting (number check, Regenerate); handoff cards that notice when you've finished; approval and question cards with "Remember".
