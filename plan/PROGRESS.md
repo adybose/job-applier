@@ -54,3 +54,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - `fixtures/shared/fixture.js`: Submit click recording, React value-tracker emulation, React-Select-like combobox, Yes/No toggles.
 - Tests: `e2e/fixtures.spec.ts` 11/11 (required elements, Submit recorded without navigation, no remote URLs, controlled-input semantics, cross-origin embed, combobox). Lint and typecheck clean.
 - Next: T06 (FormSnapshot).
+
+## 2026-10-25 — T06 FormSnapshot
+
+- `shared/snapshot.ts` (zod `FormSnapshot`/`Field`/`Button`/`Blocker`, `mergeSnapshots`), `shared/policy/buttons.ts` (`isSubmitLike`, `isNavLike`).
+- `content/`: deep traversal through open shadow roots, label resolution in spec order (plus Lever/Ashby specifics, ADR-009), kinds, visibility/honeypot filtering, required markers, options, current values, constraints, sections, help text, stable ids with re-render reuse, blockers (captcha/login/oauth/recorder), job description and step hint, lazy combobox option reading, debounced `dom-changed` messages.
+- Side panel `page.ts`: inject into all frames, snapshot and merge per frame, read combobox options (ADR-008). Test hook `globalThis.__lazyApplyPanel`.
+- Tests: 105 unit (labels in jsdom, button classification) and 24 e2e (AC-PP-1..9 on generic, Greenhouse, Lever, Ashby and the cross-origin Greenhouse embed). Lint and typecheck clean.
+- Next: T07 (actions).

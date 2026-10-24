@@ -57,3 +57,17 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** `fixtures/README.md` describes capturing real ATS pages and anonymizing them. With the deadline a day away, capturing and scrubbing four live ATS pages (and re-creating their client-side behavior) would cost hours, and verbatim job text has copyright concerns.
 - **Decision:** Write replica fixtures that reproduce each ATS's markup patterns from public knowledge of their DOM (Greenhouse classic ids and `job_application[...]` names, Lever `application-question` lists and `urls[...]` names, Ashby `_systemfield_*` ids with React-style controlled inputs and Yes/No toggles, a generic form covering every label strategy). Behavior that matters to the agent (controlled inputs, React-Select comboboxes, cross-origin iframe embed, Submit click recording) is reproduced in `fixtures/shared/fixture.js` and verified by `e2e/fixtures.spec.ts`.
 - **Consequences:** Real captures remain a P1 improvement. The demo still runs on a real Greenhouse posting (spec 11), which is the true end-to-end check.
+
+## ADR-008: Run orchestration lives in the side panel; frames are reached with chrome.scripting
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** The repo map put orchestration in the background service worker. MV3 service workers can be suspended mid-run, and spec 01 R-PS-14 requires that a run stops when the side panel closes.
+- **Decision:** The agent loop runs in the side panel page, which exists exactly as long as the panel is open, so closing the panel stops the run with no extra plumbing. The panel injects `content-scripts/content.js` with `chrome.scripting.executeScript({ allFrames: true })` and calls the content script's API (`globalThis.__lazyApply`, shared isolated world) with `executeScript({ func })`, which returns results per `frameId`. Each frame snapshots only its own document and its open shadow roots; the panel merges them (`mergeSnapshots`). Content scripts only send `dom-changed` notifications back via `runtime.sendMessage`. Model calls are made from the panel (an extension page, covered by the CSP). The background only opens the panel.
+- **Consequences:** Same-origin iframes are covered by `allFrames` injection rather than DOM traversal, so nothing is snapshotted twice. Host access for real ATS pages (activeTab vs. per-origin optional permissions) is settled in T11. Spec 03 R-PP-7 reads "same-origin iframes" as covered by injection.
+
+## ADR-009: Perception details
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Decision:** (1) Visually hidden `<input type=file>` behind an upload button is kept; its visibility is judged by its parent. (2) A pair of sibling Yes/No buttons (Ashby) becomes a `radio-group` field with `widget: "toggle-buttons"`. (3) React-Select inputs are `combobox` with `widget: "react-select"`. (4) A wrapping label's text excludes the branch holding the control (Lever wraps upload buttons in the label). (5) A radio group uses its fieldset legend only when the fieldset holds nothing else; otherwise the text before its first option. (6) The longest job description across frames wins.

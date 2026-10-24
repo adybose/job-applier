@@ -99,6 +99,36 @@ export const test = base.extend<Fixtures>({
 
 export const expect = test.expect;
 
+/** Opens a fixture in a new tab and returns its tab id as the extension sees it. */
+export async function openFixture(context: BrowserContext, panel: Page, path: string): Promise<{ page: Page; tabId: number }> {
+  const page = await context.newPage();
+  await page.goto(`${FIXTURE_ORIGIN}/${path}`);
+  await page.waitForLoadState('load');
+  const tabId = await panel.evaluate(async (url) => {
+    const tabs = await (globalThis as unknown as { chrome: { tabs: { query(q: object): Promise<{ id: number; url: string }[]> } } }).chrome.tabs.query({});
+    return tabs.find((t) => t.url === url)?.id ?? -1;
+  }, `${FIXTURE_ORIGIN}/${path}`);
+  if (tabId < 0) throw new Error(`tab for ${path} not found`);
+  return { page, tabId };
+}
+
+type PanelHelpers = typeof import('../extension/src/sidepanel/page');
+
+/** Runs one of the side panel's page helpers (extension/src/sidepanel/page.ts) inside the panel. */
+export function panelCall<K extends keyof PanelHelpers>(
+  panel: Page,
+  name: K,
+  ...args: Parameters<PanelHelpers[K]>
+): Promise<Awaited<ReturnType<PanelHelpers[K]>>> {
+  return panel.evaluate(
+    async ([n, a]) => {
+      const helpers = (globalThis as unknown as { __lazyApplyPanel: Record<string, (...x: unknown[]) => unknown> }).__lazyApplyPanel;
+      return (await helpers[n as string]?.(...(a as unknown[]))) as never;
+    },
+    [name, args] as const,
+  ) as Promise<Awaited<ReturnType<PanelHelpers[K]>>>;
+}
+
 export async function mockMode(mode: 'ok' | 'invalid-json' | 'forbidden' | 'error', extra: Record<string, unknown> = {}) {
   await fetch(`${MOCK_ORIGIN}/__mock/mode`, { method: 'POST', body: JSON.stringify({ mode, ...extra }) });
 }
