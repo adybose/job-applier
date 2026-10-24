@@ -15,7 +15,26 @@ type Mode = 'ok' | 'invalid-json' | 'forbidden' | 'error';
 interface Recording {
   name: string;
   match: string[];
-  response: unknown;
+  response?: unknown;
+  /** Plan prompts: answer each "id | kind | label | …" line by label (regex source, case-insensitive). */
+  planByLabel?: Record<string, { value: string; confidence?: number; sensitive?: boolean }>;
+}
+
+/** Builds a plan reply for whatever field ids the prompt lists. Unknown labels are skipped. */
+function planReply(text: string, byLabel: NonNullable<Recording['planByLabel']>): string {
+  const fieldsBlock = text.split('FORM FIELDS')[1] ?? '';
+  const actions = [];
+  for (const line of fieldsBlock.split('\n')) {
+    const [id, , label] = line.split(' | ').map((x) => x.trim());
+    if (!id || !label || !id.startsWith('la-')) continue;
+    const hit = Object.entries(byLabel).find(([re]) => new RegExp(re, 'i').test(label));
+    actions.push(
+      hit
+        ? { field_id: id, value: hit[1].value, skip: false, confidence: hit[1].confidence ?? 0.9, rationale: 'mock', sensitive: hit[1].sensitive ?? false }
+        : { field_id: id, value: '', skip: true, confidence: 0, rationale: 'mock: not in profile', sensitive: false },
+    );
+  }
+  return JSON.stringify({ actions });
 }
 
 interface LoggedRequest {
@@ -51,6 +70,7 @@ interface ChatBody {
 function replyContent(body: ChatBody): string {
   const text = (body.messages ?? []).map((m) => m.content ?? '').join('\n');
   const recording = loadRecordings().find((r) => r.match.every((s) => text.includes(s)));
+  if (recording?.planByLabel) return planReply(text, recording.planByLabel);
   if (recording) {
     return typeof recording.response === 'string' ? recording.response : JSON.stringify(recording.response);
   }

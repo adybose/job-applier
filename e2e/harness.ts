@@ -1,5 +1,7 @@
 import { chromium, test as base, type BrowserContext, type Page, type Worker } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { alexProfile } from './seed';
 import { findViolations, type ExtensionRequest } from './guard';
 
 export const USE_OLLAMA = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
@@ -28,7 +30,7 @@ interface Fixtures {
   extensionId: string;
   extensionRequests: ExtensionRequest[];
   /** Opens the side panel UI in a tab, pointed at the model endpoint under test. */
-  openPanel: () => Promise<Page>;
+  openPanel: (query?: string) => Promise<Page>;
 }
 
 export const test = base.extend<Fixtures>({
@@ -72,9 +74,9 @@ export const test = base.extend<Fixtures>({
   },
 
   openPanel: async ({ context, extensionId, extensionRequests: _ }, use) => {
-    await use(async () => {
+    await use(async (query = '') => {
       const page = await context.newPage();
-      await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+      await page.goto(`chrome-extension://${extensionId}/sidepanel.html${query}`);
       await page.evaluate(async (endpoint) => {
         const storage = (globalThis as unknown as ChromeGlobal).chrome.storage.local;
         const key = 'settings.model.v1';
@@ -140,3 +142,21 @@ export async function mockReset() {
 export async function mockRequests(): Promise<{ method: string; path: string; body: Record<string, unknown> }[]> {
   return (await fetch(`${MOCK_ORIGIN}/__mock/requests`)).json();
 }
+
+/** Saves the fictional Alex Rivera profile and CV straight into extension storage. */
+export async function seedProfile(panel: Page, options: { askSalary?: boolean } = {}): Promise<void> {
+  const profile = alexProfile();
+  if (options.askSalary) profile.salaryExpectation = { value: { askEachTime: true }, source: 'user' };
+  const cv = readFileSync(resolve(import.meta.dirname, '../fixtures/profiles/alex-rivera-cv.pdf')).toString('base64');
+  await panel.evaluate(
+    async ([p, b64]) => {
+      const t = (globalThis as unknown as { __lazyApplyTest: { saveProfile(p: unknown): Promise<unknown>; saveFile(f: unknown): Promise<unknown> } })
+        .__lazyApplyTest;
+      await t.saveProfile(p);
+      await t.saveFile({ kind: 'resume', name: 'alex-rivera-cv.pdf', base64: b64 });
+    },
+    [profile, cv] as const,
+  );
+}
+
+export const submitClicks = (page: Page) => page.evaluate(() => (window as unknown as { __submitClicks: number }).__submitClicks);

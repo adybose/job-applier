@@ -14,7 +14,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | [x] | T08 | Deterministic mapper (stage 1) | P0 | T04, T06 | 05 R-AL-3/4 | AC-AL-2 passes; mapper fills all identity/contact/link fields on every fixture |
 | [x] | T09 | Policy engine: routing, sensitivity classifier, EEO decline default, never-submit | P0 | T06 | 05 R-AL-11..14, 01 | AC-AL-3..7, AC-PI-9 and AC-PS-4/5/7 pass |
 | [x] | T10 | Model planner (stage 2): prompt with PAGE_DATA, structured output, validation, discard rules, retry, batching, budgets | P0 | T02, T09 | 05 R-AL-5..9, 07 R-MR-10/11 | AC-AL-8/9, AC-MR-6, AC-PS-6 pass |
-| [ ] | T11 | Agent state machine (reducer) and side panel Run view with live action log, progress, Pause/Stop, tab/panel scoping | P0 | T07, T08, T09, T10 | 05 R-AL-1/2, 08, 01 R-PS-13/14 | AC-AL-1, AC-UI-3, AC-HL-8, AC-PS-9 pass |
+| [x] | T11 | Agent state machine (reducer) and side panel Run view with live action log, progress, Pause/Stop, tab/panel scoping | P0 | T07, T08, T09, T10 | 05 R-AL-1/2, 08, 01 R-PS-13/14 | AC-AL-1, AC-UI-3, AC-HL-8, AC-PS-9 pass |
 | [ ] | T12 | Approval and question cards with batching and "Remember" | P0 | T11 | 06 R-HL-1..4/9/10 | AC-HL-1/2/9, AC-AL-11 pass |
 | [ ] | T13 | Handoff cards with overlay, field watching, auto-resume | P0 | T11 | 06 R-HL-5..8 | AC-HL-3..6 pass |
 | [ ] | T14 | Free-text drafting (stage 3) with Regenerate | P0 | T10, T12 | 05 R-AL-10 | AC-AL-10 passes; drafted fields always route to approval |

@@ -4,6 +4,7 @@ import { isActionable } from './fields';
 import { idFor } from './registry';
 
 const CAPTCHA_SELECTOR = '.g-recaptcha, .h-captcha, .cf-turnstile, [data-sitekey]';
+const CAPTCHA_TOKEN = '[name="g-recaptcha-response"], [name="h-captcha-response"], [name="cf-turnstile-response"]';
 const CAPTCHA_FRAME = /google\.com\/recaptcha|recaptcha\.net|hcaptcha\.com|challenges\.cloudflare\.com/;
 const OAUTH = /apply (with|using|via) (linkedin|indeed|google|seek|xing)/i;
 const RECORDER = /\b(start recording|record (a |your )?(video|answer|response)|record now)\b/i;
@@ -17,7 +18,14 @@ export function findBlockers(doc: Document): Blocker[] {
     const host = type === 'captcha' ? (el.closest(CAPTCHA_SELECTOR) ?? el) : el;
     if (seen.has(host)) return;
     seen.add(host);
-    out.push({ id: idFor(host, 'k', `${type}|${description}`), frameId: 0, type, description });
+    const token = type === 'captcha' ? host.querySelector<HTMLTextAreaElement | HTMLInputElement>(CAPTCHA_TOKEN) : null;
+    out.push({
+      id: idFor(host, 'k', `${type}|${description}`),
+      frameId: 0,
+      type,
+      description,
+      resolved: !!token?.value,
+    });
   };
 
   for (const el of deepElements(doc)) {

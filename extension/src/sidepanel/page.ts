@@ -38,8 +38,10 @@ export async function act(tabId: number, frameId: number, action: Action): Promi
 }
 
 /** The stored resume as an upload_file payload (base64 so it can cross executeScript). */
-export async function resumePayload(): Promise<{ name: string; type: string; base64: string } | undefined> {
-  const file = await getFile('resume');
+export async function resumePayload(
+  kind: 'resume' | 'linkedin' = 'resume',
+): Promise<{ name: string; type: string; base64: string } | undefined> {
+  const file = await getFile(kind);
   if (!file) return undefined;
   const bytes = new Uint8Array(file.bytes);
   let binary = '';

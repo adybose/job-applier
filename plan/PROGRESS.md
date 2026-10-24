@@ -89,3 +89,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Real-model check (`LAZYAPPLY_OLLAMA=1 pnpm vitest run planner.ollama`): 6 Greenhouse-style questions in ~11 s on `gemma3:4b-it-qat`; grounded answers auto, inferred ones approval, unknown ones skipped.
 - Tests: 14 planner unit tests (AC-AL-8/9, AC-MR-6 at num_ctx 8192, AC-PS-5/6). All suites green.
 - Next: T11 (agent state machine + Run view).
+
+## 2026-10-25 — T11 Agent state machine and Run view
+
+- `shared/agent/machine.ts`: pure reducer (`IDLE → NEEDS_PROFILE | SCANNING → FILLING → WAITING_APPROVAL | WAITING_HUMAN → REVIEW → DONE`, plus `PAUSED`/`STOPPED`), cards (approval, question, handoff incl. CAPTCHA/login/recorder blockers; OAuth is logged only), action log, required-field progress, model work counter so REVIEW waits for the planner.
+- `sidepanel/run/runner.ts`: effects. Inject → snapshot → stage 1 mapper → lazy combobox options → stage 2 planner → stage 3 hook → policy routing → sequential action queue (stops while paused) → read-back failures become handoffs with an overlay. Polls snapshots every 1.5 s (and on `dom-changed`) to pick up new fields, human-completed handoffs (value changed from the card's baseline) and solved CAPTCHAs (`resolved` token flag). Only touches its own `tabId`; lives in the panel, so closing the panel ends it.
+- Run view: Start, phase, progress bar, Pause/Resume/Stop, card list (approval/question/handoff UI, used by T12/T13), live action log (`aria-live`). Mock model gained label-keyed plan recordings.
+- Tests: 8 reducer unit tests (AC-AL-1); e2e: full Greenhouse run (auto-fills, resume upload, approvals for salary/sponsorship/EEO, handoffs for cover letter and CAPTCHA, no submit), pause (AC-HL-8), closing the panel (AC-PS-9). All suites green.
+- Next: T12 (approval and question cards).

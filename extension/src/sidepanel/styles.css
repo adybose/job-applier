@@ -319,3 +319,115 @@ textarea {
   color: var(--fg);
   font: inherit;
 }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+button.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.status-block {
+  margin: 12px 0;
+}
+
+.phase {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress progress {
+  flex: 1;
+  height: 10px;
+}
+
+.cards ul,
+.log ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.card h4 {
+  margin: 2px 0 6px;
+  font-size: 1rem;
+}
+
+.card p {
+  margin: 4px 0;
+}
+
+.card-kind {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-handoff {
+  border-left-color: #d97706;
+}
+
+.card-approval {
+  border-left-color: var(--accent);
+}
+
+.card-question {
+  border-left-color: #7c3aed;
+}
+
+.proposal {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  white-space: pre-wrap;
+}
+
+.log {
+  margin-top: 16px;
+}
+
+.log li {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.log-icon {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+}
+
+.log-blocked,
+.log-failed {
+  color: var(--warn);
+}

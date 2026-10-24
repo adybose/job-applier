@@ -1,0 +1,11 @@
+{
+  "match": ["prompt:plan"],
+  "planByLabel": {
+    "how did you hear": { "value": "LinkedIn", "confidence": 0.9 },
+    "years of (professional )?experience": { "value": "8", "confidence": 0.9 },
+    "open to occasional travel": { "value": "Yes", "confidence": 0.6 },
+    "i agree to|i consent to|i confirm the information": { "value": "true", "confidence": 0.95, "sensitive": true },
+    "send me news": { "value": "false", "confidence": 0.9 },
+    "are you authorized to work in the uk": { "value": "No", "confidence": 0.5, "sensitive": true }
+  }
+}

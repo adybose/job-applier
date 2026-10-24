@@ -34,7 +34,8 @@ test.describe('profile ingestion', () => {
     }
     await expect(panel.getByLabel(/^Email/)).toHaveValue('alex.rivera@example.com');
     await panel.getByRole('button', { name: 'Save profile' }).click();
-    await expect(panel.getByRole('status').filter({ hasText: 'Profile saved.' })).toBeVisible();
+    // Saving takes you to the Run view.
+    await expect(panel.getByRole('heading', { name: 'Fill this application' })).toBeVisible();
 
     // The saved profile survives a reload; the CV file is stored for resume uploads.
     await panel.reload();

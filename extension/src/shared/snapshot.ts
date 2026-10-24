@@ -65,6 +65,8 @@ export const BlockerSchema = z.object({
   frameId: z.number().default(0),
   type: z.enum(['captcha', 'login', 'recorder', 'oauth']),
   description: z.string(),
+  /** A solved CAPTCHA keeps its widget; its response token field is filled instead. */
+  resolved: z.boolean().default(false),
 });
 export type Blocker = z.infer<typeof BlockerSchema>;
 
