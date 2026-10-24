@@ -127,3 +127,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Runner: human answers jump the action queue (an approval no longer waits behind ~1 s-per-field auto-fills).
 - Tests: e2e full Lever run to review (AC-HL-7, AC-OV-1: decisions in the table, Submit outlined, zero clicks and submit events, tab switching, DONE) and skipped-required flagging. All suites green.
 - Next: T16 (e2e across all fixtures).
+
+## 2026-10-25 — T16 End-to-end across all P0 fixtures
+
+- `e2e/all-fixtures.spec.ts`: a full run to review on Greenhouse, the cross-origin Greenhouse embed, Lever, Ashby and the generic form. Each asserts the resume is auto-uploaded, the non-resume upload is a handoff, the EEO question proposes "decline" for approval, free text is drafted for review, the CAPTCHA is a handoff, Submit is outlined in the frame that holds it, and no frame recorded a Submit click. Plus AC-TE-4: invalid model JSON → question cards, and the run still finishes.
+- `clearCards()` moved to the harness (it acts like a user: approve, "I did it", skip).
+- Every e2e test also runs the network guard on teardown (AC-OV-2 / AC-PS-3).
+- Tests: 201 unit + 53 e2e green (1.8 min, no GPU). `pnpm test:e2e:ollama` needs `OLLAMA_ORIGINS=chrome-extension://*` on the machine's Ollama (not changed here).
+- Next: T17 (README, privacy, demo script, DEV post draft).

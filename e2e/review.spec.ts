@@ -1,28 +1,4 @@
-import type { Page } from '@playwright/test';
-import { expect, mockReset, startRun, submitClicks, test, USE_OLLAMA } from './harness';
-
-/** Works through every card like a user would: approve proposals, "I did it" for handoffs, skip the rest. */
-async function clearCards(panel: Page) {
-  const review = panel.getByRole('heading', { name: 'Review and click Submit yourself.' });
-  for (let i = 0; i < 150 && !(await review.isVisible()); i++) {
-    const card = panel.locator('.card').first();
-    if (!(await card.isVisible().catch(() => false))) {
-      await panel.waitForTimeout(250);
-      continue;
-    }
-    const approve = card.getByRole('button', { name: /^Approve/ });
-    const didIt = card.getByRole('button', { name: 'I did it' });
-    if ((await approve.count()) && (await approve.isEnabled())) await approve.click();
-    else if (await didIt.count()) await didIt.click();
-    else {
-      const skip = card.getByRole('button', { name: 'Skip' });
-      // A card that is still applying an answer is busy; give it a moment.
-      if (await skip.isEnabled()) await skip.click();
-    }
-    await panel.waitForTimeout(150);
-  }
-  await expect(review).toBeVisible();
-}
+import { clearCards, expect, mockReset, startRun, submitClicks, test, USE_OLLAMA } from './harness';
 
 test.describe('review', () => {
   test.beforeEach(async () => {

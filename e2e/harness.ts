@@ -188,3 +188,24 @@ export async function startRun(
   await page.bringToFront();
   return { page, panel, tabId };
 }
+
+/** Works through every card like a user would: approve proposals, "I did it" for handoffs, skip the rest. */
+export async function clearCards(panel: Page): Promise<void> {
+  const review = panel.getByRole('heading', { name: 'Review and click Submit yourself.' });
+  for (let i = 0; i < 150 && !(await review.isVisible()); i++) {
+    const card = panel.locator('.card').first();
+    if (!(await card.isVisible().catch(() => false))) {
+      await panel.waitForTimeout(250);
+      continue;
+    }
+    const approve = card.getByRole('button', { name: /^Approve/ });
+    const didIt = card.getByRole('button', { name: 'I did it' });
+    const skip = card.getByRole('button', { name: 'Skip' });
+    if ((await approve.count()) && (await approve.isEnabled())) await approve.click();
+    else if (await didIt.count()) await didIt.click();
+    // A card that is still applying an answer is busy; give it a moment.
+    else if (await skip.isEnabled()) await skip.click();
+    await panel.waitForTimeout(150);
+  }
+  await test.expect(review).toBeVisible();
+}
