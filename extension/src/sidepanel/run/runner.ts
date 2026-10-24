@@ -53,6 +53,9 @@ export class Runner {
   private processing = new Set<string>();
   /** A card's field value when the card appeared; a change from it means the human acted. */
   private baseline = new Map<string, string>();
+  /** Fields with an action in flight, and the last value we tried to write, so our own writes never look human. */
+  private inFlight = new Set<string>();
+  private attempted = new Map<string, string>();
 
   constructor(private readonly deps: RunnerDeps) {}
 
@@ -209,7 +212,8 @@ export class Runner {
     try {
       while (this.queue.length && this.active && this.state.phase !== 'PAUSED') {
         const task = this.queue.shift();
-        if (task) await task();
+        // One failing task must never stall the queue.
+        if (task) await task().catch(() => undefined);
       }
     } finally {
       this.draining = false;
@@ -225,7 +229,12 @@ export class Runner {
       this.fail(field, 'Nothing to put here.');
       return false;
     }
-    const result = await this.deps.page.act(this.deps.tabId, field.frameId, action);
+    this.inFlight.add(fieldId);
+    this.attempted.set(fieldId, value);
+    const result: ActionResult = await this.deps.page
+      .act(this.deps.tabId, field.frameId, action)
+      .catch(() => ({ ok: false as const, reason: 'not-found' as const, detail: "Lazy Apply couldn't reach this field." }))
+      .finally(() => this.inFlight.delete(fieldId));
     if (result.ok) {
       this.written.set(fieldId, result.value);
       this.dispatch({ type: 'FILLED', fieldId, value: result.value, decidedBy });
@@ -365,13 +374,14 @@ export class Runner {
         continue;
       }
       const f = fields.get(card.id);
-      if (!f) continue;
+      if (!f || this.inFlight.has(card.id)) continue;
       if (!this.baseline.has(card.id)) {
         this.baseline.set(card.id, f.value);
         continue;
       }
       const hasValue = f.kind === 'checkbox' ? f.value === 'true' : f.value.trim() !== '';
-      if (hasValue && f.value !== this.baseline.get(card.id) && f.value !== this.written.get(f.id)) {
+      const ours = [this.written.get(f.id), this.attempted.get(f.id)].some((v) => v !== undefined && v.trim() === f.value.trim());
+      if (hasValue && f.value !== this.baseline.get(card.id) && !ours) {
         this.dispatch({ type: 'RESOLVED', id: card.id, decidedBy: 'human', value: f.value });
         void this.unpoint(card.id, card.frameId);
       }

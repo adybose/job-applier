@@ -38,7 +38,10 @@ export const test = base.extend<Fixtures>({
   context: async ({}, use) => {
     const context = await chromium.launchPersistentContext('', {
       channel: 'chromium',
-      args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`],
+      args: [
+        `--disable-extensions-except=${EXTENSION_PATH}`,
+        `--load-extension=${EXTENSION_PATH}`,
+      ],
     });
     await use(context);
     await context.close();
@@ -160,3 +163,25 @@ export async function seedProfile(panel: Page, options: { askSalary?: boolean } 
 }
 
 export const submitClicks = (page: Page) => page.evaluate(() => (window as unknown as { __submitClicks: number }).__submitClicks);
+
+/**
+ * Seeds the profile, opens the fixture and a run panel bound to it, and presses Start. Like the real
+ * side panel, the job page stays the visible tab: background tabs get their timers throttled or frozen.
+ */
+export async function startRun(
+  context: BrowserContext,
+  openPanel: (query?: string) => Promise<Page>,
+  fixture: string,
+  options: { prepare?: (page: Page) => Promise<void>; askSalary?: boolean } = {},
+): Promise<{ page: Page; panel: Page; tabId: number }> {
+  const setup = await openPanel();
+  await seedProfile(setup, { askSalary: options.askSalary });
+  const { page, tabId } = await openFixture(context, setup, fixture);
+  if (options.prepare) await options.prepare(page);
+  const panel = await openPanel(`?tabId=${tabId}`);
+  await setup.close();
+  await panel.getByRole('button', { name: 'Run', exact: true }).click();
+  await panel.getByRole('button', { name: 'Start' }).click();
+  await page.bringToFront();
+  return { page, panel, tabId };
+}

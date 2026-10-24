@@ -97,3 +97,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Run view: Start, phase, progress bar, Pause/Resume/Stop, card list (approval/question/handoff UI, used by T12/T13), live action log (`aria-live`). Mock model gained label-keyed plan recordings.
 - Tests: 8 reducer unit tests (AC-AL-1); e2e: full Greenhouse run (auto-fills, resume upload, approvals for salary/sponsorship/EEO, handoffs for cover letter and CAPTCHA, no submit), pause (AC-HL-8), closing the panel (AC-PS-9). All suites green.
 - Next: T12 (approval and question cards).
+
+## 2026-10-25 — T12 Approval and question cards
+
+- Cards UI (`sidepanel/run/Cards.tsx`): handoffs and required questions first, then approvals, in page order. Approval: proposal, reason, rationale, Approve / Edit / Regenerate (drafts) / Skip, option pickers for choice fields, character count for limited text. Question: input or option picker. "Remember this answer" (off by default for sensitive questions) saves to `profile.custom`; answer-memory matching is T18.
+- Runner: `answer()` applies with `overwrite`, `remember()`, `resolve()`. Hardening: a rejected `executeScript` becomes a handoff, a failing queue task never stalls the queue, and our own in-flight or attempted values never count as "done by you".
+- Test harness: `startRun()` keeps the job page as the visible tab. Measured: a background tab got ~22 of 50 timer ticks in 5 s and could stall entirely, which froze the content script's read-back waits. The real side panel sits beside a visible page.
+- Tests: e2e edit+approve+remember (AC-HL-1/2), filling continues while cards wait (AC-AL-11), question card, skip, failed approval → handoff (AC-HL-9). All suites green.
+- Next: T13 (handoff cards and auto-resume).

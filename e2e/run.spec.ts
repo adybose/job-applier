@@ -1,16 +1,5 @@
-import type { BrowserContext, Page } from '@playwright/test';
-import { expect, mockMode, mockReset, openFixture, seedProfile, submitClicks, test, USE_OLLAMA } from './harness';
+import { expect, mockMode, mockReset, startRun, submitClicks, test, USE_OLLAMA } from './harness';
 
-async function startRun(context: BrowserContext, openPanel: (q?: string) => Promise<Page>, fixture: string) {
-  const setup = await openPanel();
-  await seedProfile(setup);
-  const { page, tabId } = await openFixture(context, setup, fixture);
-  const panel = await openPanel(`?tabId=${tabId}`);
-  await setup.close();
-  await panel.getByRole('button', { name: 'Run', exact: true }).click();
-  await panel.getByRole('button', { name: 'Start' }).click();
-  return { page, panel, tabId };
-}
 
 test.describe('run', () => {
   test.beforeEach(async () => {
