@@ -82,3 +82,10 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - `shared/policy/sensitive.ts` (code-side classifier: salary, work authorization, EEO, disability, veteran, criminal, references, legal attestations, age; EEO sections). `shared/policy/route.ts`: handoff (password, failed, human-only steps, non-resume or missing uploads) → question/skip (no answer) → approval (sensitive by code or model, drafted text, overwrite, < 0.85) → auto (mapper or ≥ 0.85). Never-submit is enforced in T07's action layer and `isSubmitLike` (T06).
 - Tests: 26 route/sensitivity cases (AC-AL-3..7, AC-PI-9, AC-PS-7). AC-PS-4/5 are covered by the action-layer e2e tests and T10's plan validation.
 - Next: T10 (model planner).
+
+## 2026-10-25 — T10 Model planner (stage 2)
+
+- `shared/agent/context.ts` (profile as compact text, trimmed oldest-bullets-first; job description trimmed from the tail), `prompts/plan.ts` (v2; job description and field list wrapped as PAGE_DATA), `shared/agent/planner.ts` (35%/25% budgets, ≤ 15 fields per batch, structured output, one retry with the zod error, failed batches → questions, `validatePlan` discarding unknown ids / non-options / unfillable kinds, grounding caps per ADR-011).
+- Real-model check (`LAZYAPPLY_OLLAMA=1 pnpm vitest run planner.ollama`): 6 Greenhouse-style questions in ~11 s on `gemma3:4b-it-qat`; grounded answers auto, inferred ones approval, unknown ones skipped.
+- Tests: 14 planner unit tests (AC-AL-8/9, AC-MR-6 at num_ctx 8192, AC-PS-5/6). All suites green.
+- Next: T11 (agent state machine + Run view).

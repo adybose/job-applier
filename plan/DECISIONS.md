@@ -79,3 +79,11 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Spec 01 R-PS-8 allowed clicking a submit-like control if the user approved that exact element as navigation; spec 04 R-AC-7/AC-AC-8 say the in-page check blocks submit-like clicks regardless.
 - **Decision:** Take the stricter rule. The content script refuses every click on a control `isSubmitLike` matches, even with approval; a navigation click also requires `approvedNav: true` in the action schema. A multi-step form whose "next" button says "Continue to submit" is a handoff instead. Combobox selection tries unfiltered fuzzy matching before typing a filter, and never presses Enter (R-PS-9).
 - **Consequences:** Spec 01 R-PS-8 updated. Zero-wrong-submission guarantee does not depend on approval UX.
+
+## ADR-011: The model proposes values only; code derives actions and caps ungrounded confidence
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Spec 05 R-AL-6 had the model return `action` per field. On real `gemma3:4b-it-qat`, 4 of 6 answers used the wrong action name (`set_checked` for a radio, `fill` for a select) and were discarded. The model also auto-filled values it computed ("6 years", wrong) or guessed ("How did you hear: Company website") at confidence 0.9–1.0.
+- **Decision:** The plan schema is `{field_id, value, skip, confidence, rationale, sensitive}`; the action comes from the field kind in code, so the model cannot express clicks or uploads at all. Confidence is capped at 0.7 (below the 0.85 auto threshold) when a typed value is not stated in the profile as a whole word/phrase, or when a choice shares no meaningful word with the profile. Prompt v2 asks for ≤ 0.7 on anything calculated or guessed.
+- **Consequences:** With the same model, grounded answers auto-fill, inferred ones go to approval, unknown ones are skipped. Spec 05 R-AL-6 updated.

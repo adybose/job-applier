@@ -26,7 +26,7 @@ Define the agent's state machine, its three filling stages, and the code-based p
 
 - **R-AL-5** Send the remaining fields (id, kind, label, help, options, required, constraints, section), the relevant profile slice (spec 07 budgets), and the job description to the Mapping model.
 - **R-AL-6** The model returns a JSON plan validated by zod:
-  `{ actions: [{ field_id, action: "fill"|"select_option"|"set_checked"|"skip", value, confidence: 0..1, rationale, sensitive: boolean }] }`
+  `{ actions: [{ field_id, value, skip: boolean, confidence: 0..1, rationale, sensitive: boolean }] }`. The action is derived from the field kind in code (ADR-011). Confidence is capped at 0.7 when the value is not stated in the profile (typed values) or shares no meaningful word with it (choices).
   The request passes the JSON schema as structured output (`format` for Ollama, `response_format` for OpenAI-compat).
 - **R-AL-7** On a schema failure, retry once with the validation error appended. On a second failure, every field in that batch becomes a question card.
 - **R-AL-8** Discard plan items with unknown `field_id`, actions not valid for the field kind, select values not in `options` (after fuzzy match), and any `click`/`upload_file`.
