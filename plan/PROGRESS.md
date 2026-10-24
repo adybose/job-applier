@@ -105,3 +105,9 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Test harness: `startRun()` keeps the job page as the visible tab. Measured: a background tab got ~22 of 50 timer ticks in 5 s and could stall entirely, which froze the content script's read-back waits. The real side panel sits beside a visible page.
 - Tests: e2e edit+approve+remember (AC-HL-1/2), filling continues while cards wait (AC-AL-11), question card, skip, failed approval → handoff (AC-HL-9). All suites green.
 - Next: T13 (handoff cards and auto-resume).
+
+## 2026-10-25 — T13 Handoff cards and auto-resume
+
+- Handoff cards ("Your turn"): one-sentence instruction, reason, overlay on the field, "I did it" and "Skip". The runner watches every snapshot: a field whose value changes from its card's baseline (not our own write) resolves as "done by you"; a CAPTCHA resolves when its widget disappears or its response token fills; blockers and fields resolve independently while filling continues.
+- Tests: e2e Ashby portfolio upload resolves on its own after `setInputFiles` (AC-HL-3/4), filling continues during the handoff (AC-HL-5), Turnstile token and removed reCAPTCHA resolve (AC-HL-6), "I did it" on the password handoff, typing an answer resolves a waiting question. All green.
+- Next: T14 (free-text drafting).
