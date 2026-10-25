@@ -173,3 +173,8 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Real model: Gemma 3 4B transcribed the page with one misread word and the extraction recovered name, email and both jobs. Measured on battery: OCR ~22–27 s/page; schema-constrained extraction ~100–115 s (vs 12 s on AC earlier), so the default timeout is now 300 s.
 - Tests: 3 unit (detection, render → OCR with images → extraction with grounding, unreadable scan) + opt-in `LAZYAPPLY_OLLAMA=1 pnpm vitest run ocr.ollama`.
 - Next: T21–T23 (P2). Temporary Ollama on :11436 has been stopped.
+
+## 2026-10-25 — T23 Static landing page (P2)
+
+- `site/index.html`: one self-contained page (inline CSS, light/dark, no scripts, forms, fonts, remote images or analytics): pitch, demo slot, what it fills/asks/hands off, four install steps, privacy promises. `render.yaml` serves `site/` as a Render static site with a strict CSP (`default-src 'none'`, inline styles only, `form-action 'none'`) and `no-referrer`.
+- Tests: `site/site.test.ts` (AC-DS-4: no forms/scripts/analytics/remote assets; install steps present).

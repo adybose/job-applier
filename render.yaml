@@ -1,0 +1,14 @@
+# Render static site for the landing page (spec 11 R-DS-6). Serves site/ as-is; no build, no server, no data.
+services:
+  - type: web
+    name: lazy-apply-site
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./site
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'"
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lazy Apply: job applications filled by a model on your laptop</title>
+    <meta
+      name="description"
+      content="A free, open-source Chrome extension that fills job applications with Gemma running on your own computer, asks before anything sensitive, and never clicks Submit."
+    />
+    <style>
+      :root {
+        --bg: #fbfaf7;
+        --fg: #1d1b18;
+        --muted: #5f5a52;
+        --line: #e4e0d8;
+        --card: #ffffff;
+        --accent: #1f5fbf;
+        --ok: #15803d;
+        --warn: #b45309;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #151412;
+          --fg: #ecebe8;
+          --muted: #a8a39a;
+          --line: #2c2a26;
+          --card: #1c1b18;
+          --accent: #7fb0ff;
+          --ok: #4ade80;
+          --warn: #fbbf24;
+          color-scheme: dark;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0 20px;
+        background: var(--bg);
+        color: var(--fg);
+        font: 17px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 56px 0 80px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 6vw, 3rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+      .lede {
+        margin: 0 0 28px;
+        color: var(--muted);
+        font-size: 1.2rem;
+      }
+      h2 {
+        margin: 48px 0 12px;
+        font-size: 1.35rem;
+      }
+      .demo {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        aspect-ratio: 16 / 10;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+      .demo img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      ol.steps {
+        padding-left: 1.2em;
+      }
+      ol.steps li {
+        margin: 10px 0;
+      }
+      pre {
+        overflow-x: auto;
+        margin: 8px 0;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .tile {
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 10px;
+        background: var(--card);
+      }
+      .tile strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .tile.ok {
+        border-left-color: var(--ok);
+      }
+      .tile.warn {
+        border-left-color: var(--warn);
+      }
+      ul.promises {
+        padding-left: 1.2em;
+      }
+      ul.promises li {
+        margin: 6px 0;
+      }
+      a {
+        color: var(--accent);
+      }
+      footer {
+        margin-top: 56px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Lazy Apply</h1>
+      <p class="lede">
+        Fills job applications with Gemma running on your own laptop. Asks before anything sensitive. Hands you the parts
+        only you should do. <strong>Never clicks Submit.</strong>
+      </p>
+
+      <div class="demo">
+        <!-- Replace with the recorded demo: <img src="demo.gif" alt="Lazy Apply filling a Greenhouse application"> -->
+        <p>Demo video coming soon.</p>
+      </div>
+
+      <h2>What it does on every application</h2>
+      <div class="grid">
+        <div class="tile ok">
+          <strong>Fills it for you</strong>Name, contact, links, location, current role and your CV upload, straight from your
+          profile.
+        </div>
+        <div class="tile">
+          <strong>Asks you first</strong>Salary, visa and diversity questions, consent boxes and drafted answers wait for one
+          click.
+        </div>
+        <div class="tile warn">
+          <strong>Hands it to you</strong>CAPTCHAs, passwords and extra uploads are outlined on the page. It notices when
+          you're done.
+        </div>
+      </div>
+
+      <h2>Install</h2>
+      <ol class="steps">
+        <li>
+          Install <a href="https://ollama.com/download">Ollama</a> and get the model:
+          <pre>ollama pull gemma3:4b-it-qat</pre>
+        </li>
+        <li>
+          Let browser extensions talk to Ollama (macOS shown; the extension shows Linux and Windows steps), then restart
+          Ollama:
+          <pre>launchctl setenv OLLAMA_ORIGINS "chrome-extension://*"</pre>
+        </li>
+        <li>
+          Build the extension:
+          <pre>pnpm install &amp;&amp; pnpm build</pre>
+        </li>
+        <li>
+          In Chrome, open <code>chrome://extensions</code>, turn on Developer mode, choose
+          <em>Load unpacked</em>, and pick <code>extension/.output/chrome-mv3</code>.
+        </li>
+      </ol>
+
+      <h2>Promises, enforced in code</h2>
+      <ul class="promises">
+        <li>Your CV, profile and answers stay in your browser. The model runs on <code>localhost</code>; the extension can't connect anywhere else.</li>
+        <li>It never clicks Submit, never types passwords, never solves CAPTCHAs, never creates accounts.</li>
+        <li>Text on job pages is treated as data, so a posting can't instruct it.</li>
+        <li>No analytics, no telemetry, no account. This page doesn't track you either.</li>
+      </ul>
+
+      <footer>
+        Open source under the Apache-2.0 license. Built for the DEV Hacktoberfest Open-Source AI Challenge, 2026.
+      </footer>
+    </main>
+  </body>
+</html>

@@ -27,7 +27,7 @@ export default tseslint.config(
     languageOptions: { sourceType: 'script', globals: { ...globals.browser } },
   },
   {
-    files: ['e2e/**/*.ts', 'mock-model/**/*.ts', 'scripts/**/*.ts', '*.config.ts'],
+    files: ['e2e/**/*.ts', 'mock-model/**/*.ts', 'scripts/**/*.ts', 'site/**/*.ts', '*.config.ts'],
     languageOptions: { globals: { ...globals.node } },
   },
   {

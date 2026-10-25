@@ -15,6 +15,7 @@
     "e2e",
     "mock-model",
     "scripts",
+    "site",
     "wxt.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
