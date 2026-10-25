@@ -110,3 +110,18 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Context:** Spec 02 R-PI-4 asked to send scanned page images to a multimodal Gemma for extraction. Sending images straight into the structured extraction would bypass the grounding filter (ADR-005), which needs document text.
 - **Decision:** Two steps. Gemma first transcribes each scanned page (≤ 3 pages, rendered by pdf.js to JPEG in the panel; temperature 0; prompt `ocr` v1), then the transcript goes through the normal extraction, grounding and review. A real image-only CV fixture (`fixtures/profiles/alex-rivera-scanned.pdf`, made by `scripts/make-scanned-pdf.ts`) is read correctly by `gemma3:4b-it-qat` except one misread word ("Globelex"), in about 22–27 s per page. The default model timeout goes from 120 s to 300 s: on battery power the same Mac ran long schema-constrained outputs ~10× slower (CV extraction 100–115 s instead of 12 s), and a timed-out extraction leaves the user with an empty profile.
 - **Consequences:** Spec 07 R-MR-4 updated. OCR errors are visible in the profile editor before first use.
+
+## ADR-015: Semantic answer memory with EmbeddingGemma, calibrated
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Spec 09 R-AM-4 proposed cosine ≥ 0.82. Measured on 12 question pairs with `embeddinggemma`: without a task prefix, paraphrases (0.627–0.848) and unrelated questions (0.481–0.699) overlapped, and 0.82 matched only 1 of 6 paraphrases. With the prefix `task: search result | query: `, paraphrases scored 0.594–0.772 and unrelated pairs 0.332–0.525.
+- **Decision:** Use model-specific task prefixes (EmbeddingGemma as above; nomic-embed-text `search_query: `) and a calibrated threshold of 0.56 for EmbeddingGemma (0.82 elsewhere, uncalibrated). The embedding model is picked automatically when installed ("auto"), never chosen as a chat model, and older saved answers get vectors on first use. Semantic matches carry their similarity as confidence (< 0.85), so the policy always sends them to approval; exact word matches can still auto-fill non-sensitive answers.
+- **Consequences:** Reworded questions are pre-filled for one-click approval; a wrong semantic match can't land without the user seeing it.
+
+## ADR-016: Workday dropdowns and step transitions
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Decision:** `button[aria-haspopup=listbox]` is a combobox field (opened by click, listbox found via `aria-controls`), never an action button. Combobox options are read before stage 1, so the mapper can match "USA" to "United States of America". After an approved Next click the runner counts as busy until the new step's fields are scanned (or 4 quiet polls), so another "Next" can never be offered before the new step has been read; "Go to the next step?" cards always sort last.
+- **Consequences:** Found by tracing a Workday run, where an early Next card let a user skip a step of unanswered questions.

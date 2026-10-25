@@ -82,6 +82,39 @@ export class ModelClient {
     return (data.models ?? []).map((m) => m.name);
   }
 
+  /** Spec 09 R-AM-4: embeddings for answer memory (Ollama /api/embed or OpenAI-compatible /v1/embeddings). */
+  async embed(model: string, input: string[]): Promise<number[][]> {
+    const started = this.deps.now();
+    let ok = false;
+    try {
+      let vectors: number[][];
+      if (this.settings.apiStyle === 'openai') {
+        const data = (await this.request('POST', '/v1/embeddings', { model, input })) as { data?: { embedding: number[] }[] };
+        vectors = (data.data ?? []).map((d) => d.embedding);
+      } else {
+        const data = (await this.request('POST', '/api/embed', { model, input })) as { embeddings?: number[][] };
+        vectors = data.embeddings ?? [];
+      }
+      if (vectors.length !== input.length) throw new ModelError('bad-response', 'The embedding model sent the wrong number of vectors.');
+      ok = true;
+      return vectors;
+    } finally {
+      await this.deps.stats
+        .log({
+          ts: Date.now(),
+          model,
+          promptId: 'embed',
+          promptVersion: 1,
+          stage: 'embedding',
+          inputTokens: 0,
+          outputTokens: 0,
+          latencyMs: this.deps.now() - started,
+          ok,
+        })
+        .catch(() => undefined);
+    }
+  }
+
   async chat(req: ChatRequest): Promise<ChatResult> {
     const slot = resolveSlot(this.settings, req.slot);
     const started = this.deps.now();

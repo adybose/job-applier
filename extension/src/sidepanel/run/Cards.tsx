@@ -6,6 +6,8 @@ import type { Runner } from './runner';
 export function sortCards(state: RunState): Card[] {
   const rank = (c: Card) => {
     const required = state.fields[c.id]?.field.required ?? true;
+    // "Go to the next step?" always comes last, after everything on this step.
+    if (c.nav) return 3;
     if (c.type === 'handoff') return 0;
     if (c.type === 'question' && required) return 1;
     return 2;

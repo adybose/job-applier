@@ -32,6 +32,8 @@ export function fieldKind(el: Element): FieldKind {
     }
   }
   if (el.getAttribute('role') === 'combobox') return 'combobox';
+  // Workday-style dropdowns: a button that opens a listbox.
+  if (el instanceof HTMLButtonElement && el.getAttribute('aria-haspopup') === 'listbox') return 'combobox';
   if (el instanceof HTMLElement && (el.isContentEditable || el.getAttribute('role') === 'textbox')) return 'contenteditable';
   return 'unknown';
 }
@@ -118,6 +120,10 @@ export function currentValue(el: Element, kind: FieldKind, group?: readonly HTML
     case 'contenteditable':
       return textOf(el);
     case 'combobox': {
+      if (el instanceof HTMLButtonElement) {
+        const text = textOf(el);
+        return /^(select( one)?|choose|--|please select)\b/i.test(text) ? '' : text;
+      }
       const container = el.closest('.select__container, [class*="-container"], [data-combobox]');
       const single = container?.querySelector('.select__single-value, [class*="singleValue"], [class*="single-value"]');
       return textOf(single) || (el as HTMLInputElement).value || '';

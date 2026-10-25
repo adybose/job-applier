@@ -178,3 +178,10 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 
 - `site/index.html`: one self-contained page (inline CSS, light/dark, no scripts, forms, fonts, remote images or analytics): pitch, demo slot, what it fills/asks/hands off, four install steps, privacy promises. `render.yaml` serves `site/` as a Render static site with a strict CSP (`default-src 'none'`, inline styles only, `form-action 'none'`) and `no-referrer`.
 - Tests: `site/site.test.ts` (AC-DS-4: no forms/scripts/analytics/remote assets; install steps present).
+
+## 2026-10-25 — T21 Embedding answer memory and T22 Workday (P2)
+
+- T21: `ModelClient.embed` (Ollama `/api/embed`, OpenAI `/v1/embeddings`), `embeddingModel` setting ("auto"), vectors on saved answers with backfill, `shared/memory/semantic.ts` (prefixes, calibrated threshold, matcher), runner order mapper → semantic → word overlap. Real calibration (`LAZYAPPLY_OLLAMA=1 pnpm vitest run semantic.ollama`) drove ADR-015. Embedding models are hidden from the chat model list. Mock serves deterministic bag-of-words vectors.
+- T22: `fixtures/workday.html` (data-automation-id inputs, controlled inputs, five steps with Save and Continue, button dropdowns with portal listboxes, consent, CAPTCHA). Button dropdowns as combobox fields; options read before stage 1; runner waits for the new step after a Next click; nav cards last (ADR-016).
+- Tests: 228 unit (+ real-model opt-ins), e2e Workday full five-step run and "never offer Next before the new step is read". Full e2e suite green.
+- All 23 tasks done.

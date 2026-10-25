@@ -7,7 +7,7 @@ import { fakeFromSchema } from './fake-from-schema.ts';
 
 const PORT = Number(process.argv[2] ?? process.env.MOCK_MODEL_PORT ?? 11435);
 const RECORDINGS_DIR = join(import.meta.dirname, 'recordings');
-const MODELS = (process.env.MOCK_MODELS ?? 'gemma3:4b-it-qat,gemma3:12b-it-qat').split(',');
+const MODELS = (process.env.MOCK_MODELS ?? 'gemma3:4b-it-qat,gemma3:12b-it-qat,embeddinggemma:latest').split(',');
 const TOKENS_PER_SECOND = 50;
 
 type Mode = 'ok' | 'invalid-json' | 'forbidden' | 'error';
@@ -80,6 +80,17 @@ function replyContent(body: ChatBody): string {
 }
 
 const estimateTokens = (s: string) => Math.ceil(s.length / 3.5);
+
+/** Deterministic 64-dimension bag-of-words vector, so identical questions embed identically. */
+function bagOfWords(text: string): number[] {
+  const v = new Array<number>(64).fill(0);
+  for (const word of text.toLowerCase().match(/[a-z]{3,}/g) ?? []) {
+    let h = 0;
+    for (const c of word) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    v[h % 64] = (v[h % 64] ?? 0) + 1;
+  }
+  return v;
+}
 
 function send(res: ServerResponse, status: number, data: unknown) {
   res.writeHead(status, {
@@ -158,8 +169,10 @@ const server = createServer(async (req, res) => {
         usage: { prompt_tokens: estimateTokens(JSON.stringify(chat.messages ?? [])), completion_tokens: estimateTokens(content) },
       });
     }
-    case '/api/embed':
-      return send(res, 200, { embeddings: [[0.1, 0.2, 0.3]] });
+    case '/api/embed': {
+      const input = (body as { input?: string | string[] }).input ?? [];
+      return send(res, 200, { embeddings: (Array.isArray(input) ? input : [input]).map(bagOfWords) });
+    }
     default:
       return send(res, 404, { error: `mock has no ${path}` });
   }

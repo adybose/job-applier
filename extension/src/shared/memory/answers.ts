@@ -12,6 +12,9 @@ export interface SavedAnswer {
   usedCount: number;
   lastUsed: number;
   sensitive: boolean;
+  /** Spec 09 R-AM-4 (P2): the question's embedding and the model that made it. */
+  embedding?: number[];
+  embeddingModel?: string;
 }
 
 const STOPWORDS = new Set(
@@ -62,7 +65,7 @@ export function similarity(a: string, b: string): number {
   return shared / (x.size + y.size - shared);
 }
 
-const KIND_GROUP: Record<FieldKind, string> = {
+export const KIND_GROUP: Record<FieldKind, string> = {
   text: 'text',
   email: 'text',
   tel: 'text',
@@ -120,7 +123,7 @@ export function listAnswers(dbName?: string): Promise<SavedAnswer[]> {
 
 /** Saves or replaces the answer for this question (R-AM-6: only when the user asked to remember it). */
 export function saveAnswer(
-  input: { questionText: string; answer: string; fieldKind: FieldKind; sensitive: boolean },
+  input: { questionText: string; answer: string; fieldKind: FieldKind; sensitive: boolean; embedding?: number[]; embeddingModel?: string },
   dbName?: string,
 ): Promise<void> {
   const normalizedKey = normalizeQuestion(input.questionText);
@@ -135,6 +138,8 @@ export function saveAnswer(
       sensitive: input.sensitive,
       usedCount: existing?.usedCount ?? 0,
       lastUsed: Date.now(),
+      embedding: input.embedding,
+      embeddingModel: input.embedding ? input.embeddingModel : undefined,
     });
   }, dbName);
 }
@@ -154,5 +159,12 @@ export function updateAnswer(normalizedKey: string, answer: string, dbName?: str
   return withDb(async (db) => {
     const entry = await db.get('answers', normalizedKey);
     if (entry) await db.put('answers', { ...entry, answer: answer.trim() });
+  }, dbName);
+}
+
+export function setEmbedding(normalizedKey: string, embedding: number[], embeddingModel: string, dbName?: string): Promise<void> {
+  return withDb(async (db) => {
+    const entry = await db.get('answers', normalizedKey);
+    if (entry) await db.put('answers', { ...entry, embedding, embeddingModel });
   }, dbName);
 }

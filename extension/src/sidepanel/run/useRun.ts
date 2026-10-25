@@ -6,7 +6,9 @@ import { loadModelSettings } from '../../shared/model/settings';
 import { getFile } from '../../shared/profile/files';
 import { loadProfile, saveProfile } from '../../shared/profile/storage';
 import * as page from '../page';
-import { listAnswers, markUsed, saveAnswer } from '../../shared/memory/answers';
+import { listAnswers, markUsed, saveAnswer, setEmbedding } from '../../shared/memory/answers';
+import { prefixFor, resolveEmbeddingModel } from '../../shared/memory/semantic';
+import type { ModelClient } from '../../shared/model/client';
 import { recordRun } from '../../shared/stats/runs';
 import { ensureAccess } from './access';
 import { createDrafter } from './drafter';
@@ -75,7 +77,13 @@ export function useRun() {
       mapperContext: { hasResume: !!resume, hasLinkedinPdf: !!linkedin },
       drafter: createDrafter(client, settings),
       saveProfile: (p) => saveProfile(p, []),
-      memory: { list: () => listAnswers(), save: (a) => saveAnswer(a), markUsed: (k) => markUsed(k) },
+      memory: {
+        list: () => listAnswers(),
+        save: (a) => saveAnswer(a),
+        markUsed: (k) => markUsed(k),
+        embed: embedderFor(client, settings.embeddingModel),
+        setEmbedding: (k, v, m) => setEmbedding(k, v, m),
+      },
       recordRun: (run) => recordRun(run),
     });
     runner.current = r;
@@ -86,4 +94,18 @@ export function useRun() {
   }
 
   return { state, error, start, runner: current };
+}
+
+/** Embeddings with the configured memory model, resolved once per run; undefined when none is installed. */
+function embedderFor(client: ModelClient, setting: string) {
+  let model: Promise<string | undefined> | undefined;
+  return async (texts: string[]) => {
+    model ??= client
+      .listModels()
+      .then((installed) => resolveEmbeddingModel(setting, installed))
+      .catch(() => undefined);
+    const name = await model;
+    if (!name || !texts.length) return undefined;
+    return { model: name, vectors: await client.embed(name, texts.map((t) => prefixFor(name) + t)) };
+  };
 }

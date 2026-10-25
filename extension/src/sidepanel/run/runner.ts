@@ -6,7 +6,8 @@ import type { Action, ActionResult } from '../../shared/actions';
 import type { ModelClient } from '../../shared/model/client';
 import type { ModelSettings } from '../../shared/model/settings';
 import { handoffInstruction, route } from '../../shared/policy/route';
-import { findMatch, type SavedAnswer } from '../../shared/memory/answers';
+import { findMatch, type MemoryMatch, type SavedAnswer } from '../../shared/memory/answers';
+import { embeddingText, findSemanticMatch, thresholdFor } from '../../shared/memory/semantic';
 import { sensitiveCategory } from '../../shared/policy/sensitive';
 import type { Profile } from '../../shared/profile/schema';
 import type { RunRecord } from '../../shared/stats/runs';
@@ -39,8 +40,19 @@ export interface RunnerDeps {
   saveProfile?: (profile: Profile) => Promise<unknown>;
   memory?: {
     list(): Promise<SavedAnswer[]>;
-    save(input: { questionText: string; answer: string; fieldKind: Field['kind']; sensitive: boolean }): Promise<void>;
+    save(input: {
+      questionText: string;
+      answer: string;
+      fieldKind: Field['kind'];
+      sensitive: boolean;
+      embedding?: number[];
+      embeddingModel?: string;
+    }): Promise<void>;
     markUsed(key: string): Promise<void>;
+    /** Spec 09 R-AM-4 (P2): embeddings, when an embedding model is installed. */
+    embed?(texts: string[]): Promise<{ model: string; vectors: number[][] } | undefined>;
+    setEmbedding?(key: string, vector: number[], model: string): Promise<void>;
+    semanticThreshold?: number;
   };
   recordRun?: (run: RunRecord) => Promise<void>;
   pollMs?: number;
@@ -73,6 +85,8 @@ export class Runner {
   private recorded = false;
   /** Next/Continue buttons the user said "not yet" to, until new fields appear. */
   private declinedNav = new Set<string>();
+  /** Polls left to wait for a new step after a Next click; while > 0 the run counts as busy. */
+  private awaitingStep = 0;
 
   constructor(private readonly deps: RunnerDeps) {}
 
@@ -159,6 +173,11 @@ export class Runner {
     const known = this.state.order.length;
     this.dispatch({ type: 'SNAPSHOT', snapshot });
     if (this.state.order.length > known) this.declinedNav.clear();
+    // After a Next click, wait for the new step's fields (or give up after a few quiet polls).
+    if (this.awaitingStep > 0 && (this.state.order.length > known || --this.awaitingStep === 0)) {
+      this.awaitingStep = 0;
+      this.dispatch({ type: 'WORK', delta: -1 });
+    }
     this.checkHumanProgress(snapshot);
     await this.processNewFields();
   }
@@ -174,23 +193,27 @@ export class Runner {
       const { profile, mapperContext } = this.deps;
       const forModel: Field[] = [];
       const forDraft: Field[] = [];
+      // Combobox options are read lazily (spec 03 R-PP-10); read them first so stage 1 and the model can match a real option.
+      for (const fs of fresh) {
+        const field = fs?.field;
+        if (field?.kind === 'combobox' && !field.options?.length) {
+          field.options = await this.deps.page.readOptions(this.deps.tabId, field.frameId, field.id).catch(() => []);
+        }
+      }
       const saved = (await this.deps.memory?.list().catch(() => [])) ?? [];
+      const mapped = new Map(fresh.flatMap((fs) => (fs ? [[fs.field.id, mapField(fs.field, profile, mapperContext)] as const] : [])));
+      const unmapped = fresh.filter((fs) => fs && !mapped.get(fs.field.id)).map((fs) => (fs as NonNullable<typeof fs>).field);
+      const semantic = await this.semanticMatches(unmapped, saved).catch(() => new Map<string, MemoryMatch>());
 
       for (const fs of fresh) {
         if (!fs) continue;
         const field = fs.field;
-        const proposal = mapField(field, profile, mapperContext) ?? this.fromMemory(field, saved);
+        const match = semantic.get(field.id) ?? findMatch(field, saved);
+        const proposal = mapped.get(field.id) ?? (match ? this.fromMemory(field, match) : undefined);
         if (proposal) this.decide(field, proposal);
         else if (isFreeText(field)) forDraft.push(field);
         else if (['file', 'password', 'unknown'].includes(field.kind)) this.decide(field, undefined);
         else forModel.push(field);
-      }
-
-      // Combobox options are read lazily (spec 03 R-PP-10) so the model can pick a real one.
-      for (const field of forModel) {
-        if (field.kind === 'combobox' && !field.options?.length) {
-          field.options = await this.deps.page.readOptions(this.deps.tabId, field.frameId, field.id).catch(() => []);
-        }
       }
 
       if (forModel.length) {
@@ -212,10 +235,37 @@ export class Runner {
     }
   }
 
+  /** Spec 09 R-AM-4: embedding matches for these fields; backfills vectors for older saved answers. */
+  private async semanticMatches(fields: readonly Field[], saved: SavedAnswer[]): Promise<Map<string, MemoryMatch>> {
+    const memory = this.deps.memory;
+    const out = new Map<string, MemoryMatch>();
+    if (!memory?.embed || !saved.length || !fields.length) return out;
+    const probe = await memory.embed([embeddingText(fields[0]?.label ?? '')]);
+    if (!probe) return out;
+    const model = probe.model;
+    const missing = saved.filter((e) => e.embeddingModel !== model || !e.embedding);
+    if (missing.length) {
+      const result = await memory.embed(missing.map((e) => embeddingText(e.questionText)));
+      result?.vectors.forEach((vector, i) => {
+        const entry = missing[i];
+        if (!entry) return;
+        entry.embedding = vector;
+        entry.embeddingModel = model;
+        void memory.setEmbedding?.(entry.normalizedKey, vector, model).catch(() => undefined);
+      });
+    }
+    const vectors = await memory.embed(fields.map((f) => embeddingText(f.label)));
+    vectors?.vectors.forEach((vector, i) => {
+      const field = fields[i];
+      if (!field) return;
+      const match = findSemanticMatch(field, vector, saved, model, memory.semanticThreshold ?? thresholdFor(model));
+      if (match) out.set(field.id, match);
+    });
+    return out;
+  }
+
   /** Spec 09 R-AM-5: a remembered answer is a proposal like any other; the policy still decides. */
-  private fromMemory(field: Field, saved: readonly SavedAnswer[]): Proposal | undefined {
-    const match = findMatch(field, saved);
-    if (!match) return undefined;
+  private fromMemory(field: Field, match: MemoryMatch): Proposal {
     return {
       fieldId: field.id,
       action: field.kind === 'select' || field.kind === 'radio-group' || field.kind === 'combobox' ? 'select_option' : field.kind === 'checkbox' ? 'set_checked' : 'fill',
@@ -367,6 +417,11 @@ export class Runner {
         const result = await this.deps.page
           .act(this.deps.tabId, frameId, { action: 'click', buttonId, approvedNav: true })
           .catch(() => ({ ok: false as const, reason: 'not-found' as const }));
+        if (result.ok) {
+          // Busy until the next step is scanned, so nothing (not even another "Next") is proposed in between.
+          this.awaitingStep = 4;
+          this.dispatch({ type: 'WORK', delta: 1 });
+        }
         this.dispatch({ type: 'NAV_RESOLVED', buttonId, clicked: result.ok });
         if (!result.ok) {
           this.declinedNav.add(buttonId);
@@ -401,8 +456,16 @@ export class Runner {
       custom: { ...this.deps.profile.custom, [key]: { value: value.trim(), source: 'user' } },
     };
     await this.deps.saveProfile?.(this.deps.profile);
+    const embedded = await this.deps.memory?.embed?.([embeddingText(key)]).catch(() => undefined);
     await this.deps.memory
-      ?.save({ questionText: key, answer: value, fieldKind: field.kind, sensitive: !!sensitiveCategory(field) })
+      ?.save({
+        questionText: key,
+        answer: value,
+        fieldKind: field.kind,
+        sensitive: !!sensitiveCategory(field),
+        embedding: embedded?.vectors[0],
+        embeddingModel: embedded?.model,
+      })
       .catch(() => undefined);
   }
 

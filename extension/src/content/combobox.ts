@@ -9,12 +9,20 @@ export function comboboxContainer(input: Element): Element {
 }
 
 export function openCombobox(input: HTMLElement): void {
+  if (input instanceof HTMLButtonElement) {
+    if (input.getAttribute('aria-expanded') !== 'true') input.click();
+    return;
+  }
   const control = comboboxContainer(input).querySelector('[class*="control"]') ?? input;
   control.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
   input.focus();
 }
 
 export function closeCombobox(input: HTMLElement): void {
+  if (input instanceof HTMLButtonElement) {
+    if (input.getAttribute('aria-expanded') === 'true') input.click();
+    return;
+  }
   input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   input.blur();
 }

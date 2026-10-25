@@ -1,6 +1,6 @@
 import { withDb } from '../db';
 
-export type Stage = 'extraction' | 'planning' | 'drafting' | 'benchmark';
+export type Stage = 'extraction' | 'planning' | 'drafting' | 'benchmark' | 'embedding';
 
 // Spec 07 R-MR-16. Never add prompt or response text to this record.
 export interface CallStat {

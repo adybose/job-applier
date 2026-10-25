@@ -18,6 +18,8 @@ export const ModelSettingsSchema = z.object({
   mapping: SlotConfigSchema,
   drafting: SlotConfigSchema,
   timeoutMs: z.number().int().positive(),
+  /** Answer-memory embeddings (spec 09 R-AM-4): "auto" uses EmbeddingGemma or nomic-embed-text if installed. */
+  embeddingModel: z.string().default('auto'),
 });
 export type ModelSettings = z.infer<typeof ModelSettingsSchema>;
 
@@ -30,6 +32,7 @@ export const DEFAULT_MODEL_SETTINGS: ModelSettings = {
   mapping: { model: DEFAULT_PRESET.model, numCtx: DEFAULT_PRESET.numCtx },
   drafting: { model: DEFAULT_PRESET.model, numCtx: DEFAULT_PRESET.numCtx },
   timeoutMs: 300_000,
+  embeddingModel: 'auto',
 };
 
 export function resolveSlot(settings: ModelSettings, slot: SlotName): SlotConfig {

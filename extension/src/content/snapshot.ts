@@ -37,6 +37,7 @@ function rawLabel(el: Element, label: string): string {
 function widgetFor(el: Element): Field['widget'] {
   if (el.closest('.select__container, [data-combobox], [class*="react-select"]')) return 'react-select';
   if (el.getAttribute('role') === 'combobox' && !(el instanceof HTMLSelectElement)) return 'aria-combobox';
+  if (el instanceof HTMLButtonElement && el.getAttribute('aria-haspopup') === 'listbox') return 'aria-combobox';
   return 'native';
 }
 
@@ -125,7 +126,12 @@ export function buildSnapshot(doc: Document = document): FormSnapshot {
   const all = deepElements(doc);
 
   for (const el of all) {
-    if (el.matches(BUTTON_SELECTOR)) {
+    if (el instanceof HTMLButtonElement && el.getAttribute('aria-haspopup') === 'listbox') {
+      // A dropdown, not an action: it becomes a field and is never treated as a clickable button.
+      if (!isActionable(el)) continue;
+      const f = buildField(el);
+      if (f) fields.push(f);
+    } else if (el.matches(BUTTON_SELECTOR)) {
       const htmlEl = el as HTMLElement;
       if (!isActionable(htmlEl)) continue;
       const parent = htmlEl.parentElement;

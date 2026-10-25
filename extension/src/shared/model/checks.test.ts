@@ -28,6 +28,13 @@ describe('modelOptions', () => {
     ]);
   });
 
+  it('leaves embedding models out of the chat model list', () => {
+    expect(modelOptions(['embeddinggemma:latest', 'nomic-embed-text:latest']).map((o) => o.model)).toEqual([
+      'gemma3:4b-it-qat',
+      'gemma3:12b-it-qat',
+    ]);
+  });
+
   it('treats name:latest as installed for a bare name', () => {
     expect(modelOptions(['mymodel:latest']).find((o) => o.model === 'mymodel:latest')?.installed).toBe(true);
   });

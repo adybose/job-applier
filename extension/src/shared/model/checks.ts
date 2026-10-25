@@ -27,6 +27,8 @@ export function modelOptions(installed: readonly string[]): ModelOption[] {
     pullCommand: pullCommand(p.model),
   }));
   const others = installed
+    // Embedding models can't chat; they are used for answer memory instead.
+    .filter((name) => !/embed/i.test(name))
     .filter((name) => !PRESETS.some((p) => isInstalled(p.model, [name])))
     .map((name) => ({ model: name, label: name, installed: true, preset: undefined, pullCommand: pullCommand(name) }));
   return [...presets, ...others];
