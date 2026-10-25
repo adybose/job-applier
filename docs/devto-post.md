@@ -24,6 +24,8 @@ Applying for jobs is mostly typing the same things into slightly different boxes
 - drafts the essay questions from your real experience and the job description, for you to approve or edit,
 - lines up **one-click approvals** for anything sensitive: salary, visa and work authorization, diversity questions (it proposes "Decline to self-identify"), consent boxes,
 - hands you the parts only you should do (the CAPTCHA, a portfolio upload, a password), outlines them on the page, and notices when you've done them,
+- clicks "Next" on multi-step forms (Workday, for one), but only after you approve each step,
+- reads scanned CVs with Gemma's vision when the PDF has no text layer,
 - remembers the answers you tell it to, so "Are you willing to relocate?" is asked once, however it's worded next time,
 - and finishes with a review of every field it touched, with the **Submit button outlined in green. It never clicks it.**
 
@@ -42,7 +44,7 @@ On a Greenhouse-style form, Gemma 3 4B finished its part in **8.3 seconds**. 9 f
 
 ### Specs first, then code
 
-I started with twelve short specs (privacy, perception, actions, policy, human-in-the-loop, model runtime…) with numbered requirements and Given/When/Then acceptance criteria, plus a build plan of 23 tasks. Each task started from its acceptance criteria and ended in its own commit, with tests. When a spec turned out to be wrong, the fix went into a decisions log with the reason. There are twelve of those entries now, and several of them are the most interesting part of this post.
+I started with twelve short specs (privacy, perception, actions, policy, human-in-the-loop, model runtime…) with numbered requirements and Given/When/Then acceptance criteria, plus a build plan of 23 tasks. Each task started from its acceptance criteria and ended in its own commit, with tests. When a spec turned out to be wrong, the fix went into a decisions log with the reason. There are sixteen of those entries now, and several of them are the most interesting part of this post.
 
 ### Reading the page, not pixels
 
@@ -68,6 +70,10 @@ The most useful thing I did was run each stage against the real model as soon as
 
 **It was confidently wrong about arithmetic and guesses.** It answered "Years of experience" with "6" at confidence 1.0 (the CV says 2018 to now), and "How did you hear about us?" with "Company website" at 0.9. Now any typed value that isn't stated in your profile, and any choice that shares no meaningful word with it, is capped below the auto-fill threshold. With the same model and the same form, the grounded answers (TypeScript: Yes; education: Bachelor's) still auto-fill. The guesses wait for a click, and the unknowns ("Do you have a pilot license?") are left alone.
 
+**Embeddings needed calibrating, not trusting.** For "you answered this before" matching I added EmbeddingGemma. Out of the box, "Will you require visa sponsorship?" scored *closer* to "Are you willing to relocate?" (0.699) than true paraphrases like "How did you hear about this job?" vs "Where did you find this posting?" (0.627). With EmbeddingGemma's own task prefix (`task: search result | query:`), paraphrases landed at 0.59 or above and unrelated questions at 0.53 or below: a real gap, so the threshold sits in it. A semantic match's confidence is its similarity, which is always below the auto-fill bar, so these answers come back pre-filled for one click and never land silently.
+
+**The bug I'd have shipped without tracing a real flow.** On a five-step Workday-style form, right after the agent clicked "Save and Continue", there was a moment before the new step was read when everything looked finished. The agent offered "Go to the next step?" again, at the top of the list. A user clicking down the list could have skipped a whole step of questions. Now the run counts as busy until the new step has been scanned, and "next step" cards always sort last. A test makes sure of it.
+
 The pattern: **let the small model do language, and let code do trust.**
 
 ### Never submit, enforced twice
@@ -78,7 +84,7 @@ Prompt injection gets the same treatment. Each fixture's job description hides a
 
 ### Tests without a GPU
 
-201 unit tests and 53 Playwright tests run the real unpacked extension against replica Greenhouse, Lever and Ashby forms plus a generic form, with a mock Ollama server that answers by field label. A network guard on every test fails the run if the extension talks to anything except the local model. The same suite runs against real Gemma with one environment variable, and it passes on every fixture.
+228 unit tests and 64 Playwright tests run the real unpacked extension against replicas of Greenhouse (hosted and embedded), Lever, Ashby, Workable, SmartRecruiters, Workday and two generic forms, with a mock Ollama server that answers by field label. A network guard on every test fails the run if the extension talks to anything except the local model. The same suite runs against real Gemma with one environment variable, and it passes on every fixture.
 
 ## Why open matters here
 
@@ -100,7 +106,7 @@ Measured with `gemma3:4b-it-qat` on an Apple Silicon Mac, model already loaded:
 | Lever replica | 6.7 s | 10 | 5 | 2 (work samples, CAPTCHA) |
 | Ashby replica | 5.6 s | 5 | 7 | 2 (portfolio, CAPTCHA) |
 
-Other measurements: reading a CV PDF into a structured profile took 12–14 s, planning 6 open questions took about 11 s, and drafting a "Why us?" answer took 4.9 s, at roughly 45 tokens per second.
+Other measurements: reading a CV PDF into a structured profile took 12–14 s, planning 6 open questions took about 11 s, and drafting a "Why us?" answer took 4.9 s, at roughly 45 tokens per second. A *scanned* CV (an image with no text layer) was read by Gemma's vision in about 25 s per page, with one misread word ("Globelex") that the profile review catches. One surprise: on battery, long JSON-schema outputs ran about ten times slower on the same Mac, so plug in for your first import.
 
 Approvals take seconds each. With an essay you only have to read and tweak, that puts an application at about two to three minutes of my time instead of fifteen to twenty. Most of what's left is the CAPTCHA and the files I choose to upload. Those minutes are the ones I *should* be spending.
 
@@ -110,6 +116,6 @@ The extension keeps these numbers for you in a local **Stats** view: application
 
 ## What's next
 
-Multi-step forms with approved "Next" clicks, local embeddings (EmbeddingGemma) for answer memory. Workday's shadow DOM. And a vision fallback for scanned CVs using Gemma's multimodal models.
+Real captures of more ATS forms (the fixtures are hand-built replicas today), Gemma 3 12B as the drafting model on machines that can hold it, and a Chrome Web Store build. Workday's shadow DOM. And a vision fallback for scanned CVs using Gemma's multimodal models.
 
 Thanks for reading. If you try it, the Onboarding screen will tell you exactly what's missing on your machine.

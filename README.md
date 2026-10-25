@@ -63,7 +63,8 @@ flowchart LR
 | Handoff | CAPTCHAs, passwords and sign-ups, non-CV uploads, video recorders, e-signatures, fields that would not stick | "Your turn" card, the field outlined on the page; it notices when you're done |
 
 5. **Review.** A table of every field it touched and how (Auto, Approved, Edited, You did it, Skipped). Submit is outlined in green. **It never clicks it.**
-6. **It learns your answers, locally.** "Remember this answer" saves to your profile and to an answer memory that matches reworded questions ("Would you consider relocating?" ≈ "Are you willing to relocate?"). Matches still go through the policy, so sensitive ones come back pre-filled for approval. The **Stats** view shows applications filled, an estimate of minutes saved, who filled what, and each model's speed, all computed on your machine.
+6. **Multi-step forms.** When a step is done, it asks "Go to the next step?" and clicks Next/Continue only after you approve. That's the only click it ever makes, and never on anything that looks like Submit.
+7. **It learns your answers, locally.** "Remember this answer" saves to your profile and to an answer memory that matches reworded questions ("Would you consider relocating?" ≈ "Are you willing to relocate?"). If [EmbeddingGemma](https://ollama.com/library/embeddinggemma) is installed (`ollama pull embeddinggemma`), it also matches questions that share no words ("When could you start?" ≈ "Earliest start date"); those matches are always pre-filled for approval, never auto-filled. Matches still go through the policy, so sensitive ones come back pre-filled for approval. The **Stats** view shows applications filled, an estimate of minutes saved, who filled what, and each model's speed, all computed on your machine.
 
 ## Privacy and safety guarantees
 
@@ -106,6 +107,8 @@ Any other model Ollama has installed shows up in the list, and LM Studio or the 
 | `pnpm measure` | Times real runs and counts auto / approved / handoff fields per fixture |
 | `pnpm lint`, `pnpm typecheck` | ESLint and `tsc --noEmit` |
 
+Fixtures now also cover Workable, SmartRecruiters (web components with shadow roots), Workday (button dropdowns, five steps) and a three-step form inside a shadow root.
+
 Every e2e test also runs a **network guard**: it fails if the extension made any request other than to the configured local model. Fixtures are replicas of Greenhouse (hosted and cross-origin embed), Lever, Ashby and a generic form, each with a CV upload, another upload, an EEO block, an essay question, a fake CAPTCHA, a prompt-injection line in the job description, and a Submit button that counts clicks (it must stay at zero).
 
 The project was built specs-first: `specs/` holds the requirements and acceptance criteria, `plan/BUILD_PLAN.md` the task list, `plan/PROGRESS.md` the log, and `plan/DECISIONS.md` every change of plan and why.
@@ -119,6 +122,8 @@ The project was built specs-first: `specs/` holds the requirements and acceptanc
 The challenge deadline is **2026-10-25 23:59 PDT**. Anything committed after it is marked _(after deadline)_.
 
 - **2026-10-25**
+  - Workday support (button dropdowns, five-step flows) and safe step transitions; Workable, SmartRecruiters and multi-step shadow-DOM fixtures; approved "Next" for multi-step forms.
+  - Semantic answer memory with EmbeddingGemma (calibrated task prefix and threshold); scanned CVs read with Gemma's vision; static landing page.
   - Answer memory (word overlap with synonyms) and a local Stats view.
   - Real Gemma 3 4B end-to-end: every P0 fixture runs to review and never submits; per-site access requested at Start.
   - Review screen with a decisions table and the Submit outline; the run survives switching views.
