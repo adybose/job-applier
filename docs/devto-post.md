@@ -93,8 +93,12 @@ This project only makes sense with an open-weight model running locally.
 - **Your data stays on your laptop.** An application agent sees your full CV, your salary expectations, your visa status, and every answer you've written. With Gemma on Ollama, none of it goes anywhere. The extension's CSP doesn't even allow a request to anything but `localhost`.
 - **No bill per application.** Job seekers are the people least able to pay a metered API for each of the 100 forms they fill in. A model they downloaded once costs nothing per run.
 - **It works offline**, on a train or a flaky connection, as long as the application page loads.
-- **You can swap the model.** Gemma 3 4B is fast; 12B writes better essays if you have the memory; Qwen3 or Llama work through the same settings. You can see exactly what's sent, because it's your own server.
+- **You can swap the model.** Gemma 3 4B is fast; 12B writes noticeably better essays at about 2.5 times the time; Qwen3 or Llama work through the same settings. You can see exactly what's sent, because it's your own server.
 - **You can read the rules.** The policy that decides what needs your approval is about 125 lines of tested TypeScript. You don't have to trust a vendor's word about what the agent will and won't do.
+
+### 4B or 12B?
+
+I ran both Gemma 3 presets through the same three applications on the same laptop (on battery, so both slower than my plugged-in numbers below). The 12B model took about 2.5 times as long: 32.8 s instead of 13.3 s for the Greenhouse replica. It made **exactly the same auto / approval / handoff decisions**, which is the point of keeping trust in code. Where it earned its time was writing. Asked "Why do you want to work at Acme Robotics?", 4B wrote two sentences around one fact from my CV; 12B wrote three, weaving in the telemetry rewrite, the dashboard used by 300 technicians, and the mentoring, all of which really are in the CV. Both models still guessed at "years of experience" (6 and 5), and code sent both guesses to me for approval. So my setting is 4B for reading forms and 12B for essays: Lazy Apply has a separate Mapping and Drafting model slot for exactly this.
 
 ## The Lazy Payoff
 

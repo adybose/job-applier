@@ -89,6 +89,17 @@ The target machine is a 16 GB Apple Silicon laptop. Pick per slot in Settings: a
 | Fast (default) | `gemma3:4b-it-qat` | 16384 | ~45 tokens/s on an M-series Mac; a full application takes 6–9 s of agent time |
 | Quality | `gemma3:12b-it-qat` | 8192 | Better drafts, slower; needs about 9 GB of free memory |
 
+Measured side by side on the same Mac (on battery, so slower than the AC numbers above):
+
+| | Gemma 3 4B | Gemma 3 12B |
+|---|---|---|
+| Full application, agent time (Greenhouse / Lever / Ashby replicas) | 13.3 / 9.6 / 8.6 s | 32.8 / 26.0 / 21.4 s |
+| Planning 6 open questions | 16 s | 41 s |
+| Drafting "Why do you want to work here?" | 5.3 s, 2 sentences, 1 fact from the CV | 13.5 s, 3 sentences, 3 specific facts |
+| Auto / approval / handoff decisions | identical | identical |
+
+The decisions are identical because routing is code, not model. The drafts are where 12B earns its time, so a good setup on 16 GB is **4B as the Mapping model and 12B as the Drafting model** (turn off "Use the same model for both").
+
 Times above were measured on AC power. On battery, the same Mac generated plain text just as fast but ran long JSON-schema outputs (profile extraction) about 10× slower, so keep the laptop plugged in for your first profile import.
 
 Scanned CVs work too: pages with no text layer are rendered and read by Gemma's vision (about 25 s per page), then go through the same extraction and grounding. OCR can misread a word, which is what the one-time profile review is for.

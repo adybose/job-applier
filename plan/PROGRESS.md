@@ -185,3 +185,8 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - T22: `fixtures/workday.html` (data-automation-id inputs, controlled inputs, five steps with Save and Continue, button dropdowns with portal listboxes, consent, CAPTCHA). Button dropdowns as combobox fields; options read before stage 1; runner waits for the new step after a Next click; nav cards last (ADR-016).
 - Tests: 228 unit (+ real-model opt-ins), e2e Workday full five-step run and "never offer Next before the new step is read". Full e2e suite green.
 - All 23 tasks done.
+
+## 2026-10-25 — Gemma 3 4B vs 12B
+
+- Pulled `gemma3:12b-it-qat` (8.9 GB); `gemma3:4b-it-qat` and `embeddinggemma` were already present. `LAZYAPPLY_E2E_MODEL` selects the model for `pnpm measure`.
+- On battery, same session: full applications 4B 13.3/9.6/8.6 s vs 12B 32.8/26.0/21.4 s (Greenhouse/Lever/Ashby), identical decisions; planning 16 s vs 41 s; drafting 5.3 s vs 13.5 s with clearly richer, still grounded drafts from 12B. Recommended setup: 4B mapping + 12B drafting. README and post updated. Temporary Ollama on :11436 stopped again.
