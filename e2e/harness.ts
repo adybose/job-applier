@@ -8,6 +8,9 @@ export const USE_OLLAMA = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
 /** Real Ollama for `test:e2e:ollama`; it must allow extension origins (OLLAMA_ORIGINS=chrome-extension://*). */
 export const OLLAMA_ORIGIN = process.env.LAZYAPPLY_OLLAMA_URL ?? 'http://localhost:11434';
 export const MODEL_ORIGIN = USE_OLLAMA ? OLLAMA_ORIGIN : 'http://127.0.0.1:11435';
+/** Which model the panel uses in e2e runs (pnpm measure compares presets with this). */
+const E2E_MODEL = process.env.LAZYAPPLY_E2E_MODEL ?? 'gemma3:4b-it-qat';
+const E2E_NUM_CTX = /12b/.test(E2E_MODEL) ? 8192 : 16384;
 export const MOCK_ORIGIN = 'http://127.0.0.1:11435';
 /** The default endpoint is configured until each test points the panel at the model under test. */
 export const DEFAULT_MODEL_ORIGIN = 'http://localhost:11434';
@@ -85,22 +88,25 @@ export const test = base.extend<Fixtures>({
     await use(async (query = '') => {
       const page = await context.newPage();
       await page.goto(`chrome-extension://${extensionId}/sidepanel.html${query}`);
-      await page.evaluate(async (endpoint) => {
-        const storage = (globalThis as unknown as ChromeGlobal).chrome.storage.local;
-        const key = 'settings.model.v1';
-        const stored = (await storage.get(key))[key] as Record<string, unknown> | undefined;
-        await storage.set({
-          [key]: {
-            apiStyle: 'ollama',
-            sameModelForBoth: true,
-            mapping: { model: 'gemma3:4b-it-qat', numCtx: 16384 },
-            drafting: { model: 'gemma3:4b-it-qat', numCtx: 16384 },
-            timeoutMs: 300000,
-            ...stored,
-            endpoint,
-          },
-        });
-      }, MODEL_ORIGIN);
+      await page.evaluate(
+        async ({ endpoint, model, numCtx }) => {
+          const storage = (globalThis as unknown as ChromeGlobal).chrome.storage.local;
+          const key = 'settings.model.v1';
+          const stored = (await storage.get(key))[key] as Record<string, unknown> | undefined;
+          await storage.set({
+            [key]: {
+              apiStyle: 'ollama',
+              sameModelForBoth: true,
+              timeoutMs: 300000,
+              ...stored,
+              mapping: { model, numCtx },
+              drafting: { model, numCtx },
+              endpoint,
+            },
+          });
+        },
+        { endpoint: MODEL_ORIGIN, model: E2E_MODEL, numCtx: E2E_NUM_CTX },
+      );
       await page.reload();
       return page;
     });

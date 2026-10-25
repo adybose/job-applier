@@ -18,6 +18,7 @@ for (const fixture of ['greenhouse.html', 'lever.html', 'ashby.html']) {
     const count = (k: string) => how.filter((h) => h === k).length;
     console.log(
       JSON.stringify({
+        model: process.env.LAZYAPPLY_E2E_MODEL ?? 'gemma3:4b-it-qat',
         fixture,
         agentSeconds,
         autoFilledBeforeCards: filled,
