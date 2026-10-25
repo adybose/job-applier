@@ -29,7 +29,7 @@ export const DEFAULT_MODEL_SETTINGS: ModelSettings = {
   sameModelForBoth: true,
   mapping: { model: DEFAULT_PRESET.model, numCtx: DEFAULT_PRESET.numCtx },
   drafting: { model: DEFAULT_PRESET.model, numCtx: DEFAULT_PRESET.numCtx },
-  timeoutMs: 120_000,
+  timeoutMs: 300_000,
 };
 
 export function resolveSlot(settings: ModelSettings, slot: SlotName): SlotConfig {

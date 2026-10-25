@@ -88,6 +88,10 @@ The target machine is a 16 GB Apple Silicon laptop. Pick per slot in Settings: a
 | Fast (default) | `gemma3:4b-it-qat` | 16384 | ~45 tokens/s on an M-series Mac; a full application takes 6–9 s of agent time |
 | Quality | `gemma3:12b-it-qat` | 8192 | Better drafts, slower; needs about 9 GB of free memory |
 
+Times above were measured on AC power. On battery, the same Mac generated plain text just as fast but ran long JSON-schema outputs (profile extraction) about 10× slower, so keep the laptop plugged in for your first profile import.
+
+Scanned CVs work too: pages with no text layer are rendered and read by Gemma's vision (about 25 s per page), then go through the same extraction and grounding. OCR can misread a word, which is what the one-time profile review is for.
+
 Any other model Ollama has installed shows up in the list, and LM Studio or the llama.cpp server work through the OpenAI-compatible endpoint. Qwen3 and Llama 3.x are reasonable alternatives; the demo uses Gemma. Behavior and safety don't depend on the model: the policy, schemas and tests are the same for all of them.
 
 ## Development

@@ -11,7 +11,7 @@ Define how the extension talks to a local open-weight model, which models ship a
 - **R-MR-1** Default runtime is **Ollama** at `http://localhost:11434`, using the native `/api/chat` endpoint with `stream: false`, `format: <JSON schema>` for structured output, and `options.num_ctx` and `options.temperature` set explicitly on **every** call (Ollama's default context is small and silently truncates).
 - **R-MR-2** An OpenAI-compatible `/v1/chat/completions` endpoint is supported for LM Studio and the llama.cpp server, using `response_format: {type: "json_schema", json_schema}`. Listing models uses `/v1/models`.
 - **R-MR-3** Every endpoint URL passes `isLoopbackUrl` (spec 01) at save time and at call time.
-- **R-MR-4** Calls time out after 120 s (configurable); timeouts surface as a plain error and the affected fields become question cards.
+- **R-MR-4** Calls time out after 300 s (configurable; ADR-014); timeouts surface as a plain error and the affected fields become question cards.
 
 ### Presets and slots
 

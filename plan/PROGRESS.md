@@ -165,3 +165,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 - Cards are keyed by creation time, so a re-routed card starts from its new proposal.
 - Tests: e2e multistep (one approval per Next, step 2 CV upload/handoff/draft, step 3 review with Submit outlined in the shadow root, Back never clicked, zero submits; "Not yet" stays), Workable and SmartRecruiters full runs, fixture validation for both. 214 unit + 62 e2e green twice.
 - Next: T20 (scanned-PDF vision fallback, P1).
+
+## 2026-10-25 — T20 Scanned-PDF vision fallback (P1)
+
+- `prompts/ocr.ts`, `shared/profile/ocr.ts` (`fillScannedPages`), panel renderer (`renderPages`: pdf.js → canvas → JPEG), wired into ingestion with a progress message and a clear error when nothing can be read (ADR-014).
+- Fixture: `alex-rivera-scanned.pdf`, a real image-only PDF (Chromium screenshot as DCTDecode JPEG).
+- Real model: Gemma 3 4B transcribed the page with one misread word and the extraction recovered name, email and both jobs. Measured on battery: OCR ~22–27 s/page; schema-constrained extraction ~100–115 s (vs 12 s on AC earlier), so the default timeout is now 300 s.
+- Tests: 3 unit (detection, render → OCR with images → extraction with grounding, unreadable scan) + opt-in `LAZYAPPLY_OLLAMA=1 pnpm vitest run ocr.ollama`.
+- Next: T21–T23 (P2). Temporary Ollama on :11436 has been stopped.

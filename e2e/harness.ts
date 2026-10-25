@@ -95,7 +95,7 @@ export const test = base.extend<Fixtures>({
             sameModelForBoth: true,
             mapping: { model: 'gemma3:4b-it-qat', numCtx: 16384 },
             drafting: { model: 'gemma3:4b-it-qat', numCtx: 16384 },
-            timeoutMs: 120000,
+            timeoutMs: 300000,
             ...stored,
             endpoint,
           },

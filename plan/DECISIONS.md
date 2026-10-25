@@ -102,3 +102,11 @@ ADR-style log. Each entry: id, date, status, context, decision, consequences. An
 - **Status:** Accepted
 - **Decision:** When a step's required fields are all resolved and the page shows a Next/Continue control (`isNavLike && !isSubmitLike`), the runner proposes a "Go to the next step?" card instead of entering review. Approving it sends the only click Lazy Apply ever makes (`approvedNav: true`, re-checked in the page). "Not yet" is remembered until new fields appear. After any step change the runner re-scans, and re-injects the content script if a full page load dropped it. Blockers (CAPTCHA, OAuth, recorder) only count when visible, so a CAPTCHA on step 3 doesn't block step 1. Text inside web-component buttons is read through `<slot>` assigned nodes.
 - **Consequences:** Multi-step forms work with one approval per step. Workable, SmartRecruiters (web components with shadow roots) and a three-step shadow-DOM form are covered by e2e.
+
+## ADR-014: Scanned-PDF fallback via OCR transcription; 300 s model timeout
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+- **Context:** Spec 02 R-PI-4 asked to send scanned page images to a multimodal Gemma for extraction. Sending images straight into the structured extraction would bypass the grounding filter (ADR-005), which needs document text.
+- **Decision:** Two steps. Gemma first transcribes each scanned page (≤ 3 pages, rendered by pdf.js to JPEG in the panel; temperature 0; prompt `ocr` v1), then the transcript goes through the normal extraction, grounding and review. A real image-only CV fixture (`fixtures/profiles/alex-rivera-scanned.pdf`, made by `scripts/make-scanned-pdf.ts`) is read correctly by `gemma3:4b-it-qat` except one misread word ("Globelex"), in about 22–27 s per page. The default model timeout goes from 120 s to 300 s: on battery power the same Mac ran long schema-constrained outputs ~10× slower (CV extraction 100–115 s instead of 12 s), and a timed-out extraction leaves the user with an empty profile.
+- **Consequences:** Spec 07 R-MR-4 updated. OCR errors are visible in the profile editor before first use.

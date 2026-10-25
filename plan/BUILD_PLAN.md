@@ -23,7 +23,7 @@ Pick the first unchecked task whose dependencies are all checked (see `CLAUDE.md
 | [x] | T17 | README, privacy section, demo script, DEV post draft | P0 | T16 | 11 | AC-DS-1..3 hold |
 | [x] | T18 | Answer memory (token overlap) and Stats view | P1 | T12 | 09, 08 R-UI-2/7 | AC-AM-1..6 pass; Stats shows counts and per-model latency |
 | [x] | T19 | Multi-step forms: approved Next, re-scan, Workable/SmartRecruiters fixtures, shadow-DOM multi-step fixture | P1 | T16 | 05 R-AL-16, 03 R-PP-12 | e2e passes on multi-step fixtures with Submit never clicked |
-| [ ] | T20 | Scanned-PDF vision fallback | P1 | T04 | 02 R-PI-4, 07 R-MR-17 | A scanned fixture PDF yields a valid profile via the mock |
+| [x] | T20 | Scanned-PDF vision fallback | P1 | T04 | 02 R-PI-4, 07 R-MR-17 | A scanned fixture PDF yields a valid profile via the mock |
 | [ ] | T21 | Embedding-based answer memory | P2 | T18 | 09 R-AM-4 | Embedding match works with fallback to token overlap |
 | [ ] | T22 | Workday shadow-DOM fixture and support | P2 | T19 | 03, 00 R-OV-1 | e2e passes on Workday fixture |
 | [ ] | T23 | Static landing page in `site/` | P2 | T17 | 11 R-DS-6 | AC-DS-4 holds |

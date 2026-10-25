@@ -7,7 +7,7 @@ import type { Profile } from '../../shared/profile/schema';
 import { loadDraft, loadProfile, saveDraft, saveProfile, type ProfileDraft } from '../../shared/profile/storage';
 import { ProfileEditor } from '../components/ProfileEditor';
 import { SavedAnswers } from '../components/SavedAnswers';
-import { getDocument } from '../pdfjs';
+import { getDocument, renderPages } from '../pdfjs';
 
 export function ProfileView({ onSaved }: { onSaved: () => void }) {
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
@@ -113,6 +113,7 @@ function UploadForm({ onDone }: { onDone: (draft: ProfileDraft) => void }) {
           client: createModelClient(settings),
           numCtx: settings.mapping.numCtx,
           getDocument,
+          renderPages,
           onProgress: setProgress,
         },
       );
