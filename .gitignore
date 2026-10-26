@@ -1,6 +1,6 @@
 node_modules/
 .wxt/
-extension/.output/
+extension/output/
 test-results/
 playwright-report/
 .DS_Store

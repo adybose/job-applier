@@ -17,7 +17,7 @@ You need Chrome 116+, [Ollama](https://ollama.com/download), Node 20+ and pnpm.
 ```sh
 ollama pull gemma3:4b-it-qat
 pnpm install && pnpm build
-# Chrome → chrome://extensions → Developer mode → Load unpacked → extension/.output/chrome-mv3
+# Chrome → chrome://extensions → Developer mode → Load unpacked → extension/output/chrome-mv3
 ```
 
 **Let the extension talk to Ollama.** Ollama blocks browser extensions by default (you'll see a 403). Allow them once:
@@ -111,7 +111,7 @@ Any other model Ollama has installed shows up in the list, and LM Studio or the 
 | Command | What it does |
 |---|---|
 | `pnpm dev` | WXT dev mode with hot reload |
-| `pnpm build` | Production build to `extension/.output/chrome-mv3` |
+| `pnpm build` | Production build to `extension/output/chrome-mv3` |
 | `pnpm test` | Vitest unit tests (labels, mapper, policy, planner, drafter, merge, privacy) |
 | `pnpm test:e2e` | Playwright with the unpacked extension against `fixtures/*.html` and a mock model (no GPU) |
 | `pnpm test:e2e:ollama` | The same suite against real Ollama (needs `OLLAMA_ORIGINS`; set `LAZYAPPLY_OLLAMA_URL` if it isn't on 11434) |

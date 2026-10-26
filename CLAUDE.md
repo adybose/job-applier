@@ -26,7 +26,7 @@ If a task would require changing any of these, **stop and ask the user**.
 | Command | What it does |
 |---|---|
 | `pnpm dev` | Run WXT dev mode (hot reload, opens Chrome with the extension) |
-| `pnpm build` | Production build to `extension/.output/chrome-mv3` |
+| `pnpm build` | Production build to `extension/output/chrome-mv3` |
 | `pnpm test` | Vitest unit tests |
 | `pnpm test:e2e` | Playwright e2e against `fixtures/*.html` with the mock model server |
 | `pnpm test:e2e:ollama` | Same e2e suite against a real local Ollama |

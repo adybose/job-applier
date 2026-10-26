@@ -6,7 +6,7 @@ Use the fictional **Alex Rivera** profile (`fixtures/profiles/alex-rivera-cv.pdf
 
 - Laptop plugged in: on battery, schema-constrained calls ran about 10× slower in testing.
 - Ollama running with `OLLAMA_ORIGINS=chrome-extension://*`; `gemma3:4b-it-qat` pulled and warmed up (run Quick benchmark once).
-- Extension loaded from `extension/.output/chrome-mv3`; Settings → Delete all my data, so onboarding starts clean.
+- Extension loaded from `extension/output/chrome-mv3`; Settings → Delete all my data, so onboarding starts clean.
 - Profile preferences to set after extraction: sponsorship No, authorized in the United States Yes, salary 165,000 USD per year.
 - A small `portfolio.pdf` on the desktop for the handoff.
 - Window: Chrome on the left two-thirds, a terminal on the right third for the last shot. Record at 1080p, 30 fps.

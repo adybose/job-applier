@@ -4,7 +4,7 @@ import { EXTENSION_PAGES_CSP, LOOPBACK_HOST_PERMISSIONS } from './extension/src/
 // See plan/DECISIONS.md ADR-001 (WXT) and ADR-002 (programmatic injection).
 export default defineConfig({
   srcDir: 'extension/src',
-  outDir: 'extension/.output',
+  outDir: 'extension/output',
   modules: ['@wxt-dev/module-react'],
   manifest: {
     name: 'Lazy Apply',

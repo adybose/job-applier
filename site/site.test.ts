@@ -20,6 +20,6 @@ describe('landing page', () => {
 
   it('shows the install steps', () => {
     expect(html).toContain('ollama pull gemma3:4b-it-qat');
-    expect(html).toContain('extension/.output/chrome-mv3');
+    expect(html).toContain('extension/output/chrome-mv3');
   });
 });

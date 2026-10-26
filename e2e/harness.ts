@@ -19,7 +19,7 @@ export const ALLOWED_MODEL_ORIGINS = [MODEL_ORIGIN, DEFAULT_MODEL_ORIGIN];
 export const FIXTURE_ORIGIN = 'http://127.0.0.1:4173';
 export const FIXTURE_ORIGIN_2 = 'http://127.0.0.1:4174';
 
-const EXTENSION_PATH = resolve(import.meta.dirname, '../extension/.output/chrome-mv3');
+const EXTENSION_PATH = resolve(import.meta.dirname, '../extension/output/chrome-mv3');
 
 /** The slice of the chrome API used inside page.evaluate calls on extension pages. */
 export interface ChromeGlobal {
