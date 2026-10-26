@@ -6,7 +6,7 @@ tags: devchallenge, hacktoberfest, opensource, ai
 
 <!--
 Draft for the DEV Hacktoberfest Open-Source AI Challenge, Week 3 (overall prize + Gemma category).
-Before publishing: add the demo video/GIF, the repo URL, and your own opening story (marked TODO).
+Before publishing: add the demo video/GIF and your own opening story (marked TODO).
 Numbers below are measured on the replica fixtures with gemma3:4b-it-qat (pnpm measure); re-run them on your machine.
 -->
 
@@ -37,8 +37,7 @@ On a Greenhouse-style form, Gemma 3 4B finished its part in **8.3 seconds**. 9 f
 
 ## Code
 
-<!-- TODO: repo link -->
-`github.com/<you>/lazy-apply`, Apache-2.0. Setup is three commands: `ollama pull gemma3:4b-it-qat`, `pnpm install && pnpm build`, then load the unpacked extension.
+[github.com/adybose/job-applier](https://github.com/adybose/job-applier), Apache-2.0. Setup is three commands: `ollama pull gemma3:4b-it-qat`, `pnpm install && pnpm build`, then load the unpacked extension.
 
 ## How I built it
 
