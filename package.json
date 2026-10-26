@@ -15,6 +15,7 @@
     "test:e2e:ollama": "wxt build && LAZYAPPLY_E2E_OLLAMA=1 playwright test",
     "mock:model": "node mock-model/server.ts 11435",
     "measure": "wxt build && LAZYAPPLY_E2E_OLLAMA=1 playwright test e2e/measure.spec.ts",
+    "icons": "node scripts/icons.ts",
     "fixtures:pdf": "node scripts/make-fixture-pdfs.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"

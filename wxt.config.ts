@@ -5,6 +5,7 @@ import { EXTENSION_PAGES_CSP, LOOPBACK_HOST_PERMISSIONS } from './extension/src/
 export default defineConfig({
   srcDir: 'extension/src',
   outDir: 'extension/output',
+  publicDir: 'extension/public',
   modules: ['@wxt-dev/module-react'],
   manifest: {
     name: 'Lazy Apply',
@@ -14,7 +15,10 @@ export default defineConfig({
     host_permissions: LOOPBACK_HOST_PERMISSIONS,
     // Requested per site when the user presses Start (ADR-012); nothing is granted at install.
     optional_host_permissions: ['https://*/*', 'http://*/*'],
-    action: { default_title: 'Open Lazy Apply' },
+    action: {
+      default_title: 'Open Lazy Apply',
+      default_icon: { 16: 'icon/16.png', 32: 'icon/32.png', 48: 'icon/48.png', 128: 'icon/128.png' },
+    },
     content_security_policy: { extension_pages: EXTENSION_PAGES_CSP },
   },
 });
