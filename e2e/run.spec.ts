@@ -14,6 +14,8 @@ test.describe('run', () => {
     await expect(page.locator('#last_name')).toHaveValue('Rivera');
     await expect(page.locator('#email')).toHaveValue('alex.rivera@example.com');
     await expect(page.locator('#phone')).toHaveValue('+1 503 555 0142');
+    // The phone country picker shows only the dial code once "United States +1" is picked (profile says "USA").
+    await expect(page.locator('#phone-country-select .select__single-value')).toHaveText('+1');
     await expect(page.locator('#job_application_answers_attributes_0_text_value')).toHaveValue(
       'https://www.linkedin.com/in/alex-rivera-example',
     );
@@ -26,6 +28,7 @@ test.describe('run', () => {
     await expect(cards.locator('.card-handoff')).toHaveCount(2);
     await expect(cards.getByRole('heading', { name: 'Cover Letter' })).toBeVisible();
     await expect(cards.getByRole('heading', { name: 'A CAPTCHA check' })).toBeVisible();
+    await expect(cards.getByRole('heading', { name: 'Country', exact: true })).toHaveCount(0);
     await expect(cards.getByRole('heading', { name: 'Desired salary (USD)' })).toBeVisible();
     await expect(cards.getByRole('heading', { name: 'Gender' })).toBeVisible();
     await expect(cards.locator('.card-approval', { hasText: 'Gender' })).toContainText('Decline To Self Identify');

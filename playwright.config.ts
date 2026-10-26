@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 const useOllama = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
+const mockPort = process.env.MOCK_MODEL_PORT ?? '11435';
 
 export default defineConfig({
   testDir: 'e2e',
@@ -14,8 +15,8 @@ export default defineConfig({
       ? []
       : [
           {
-            command: 'node mock-model/server.ts 11435',
-            url: 'http://127.0.0.1:11435/api/version',
+            command: `node mock-model/server.ts ${mockPort}`,
+            url: `http://127.0.0.1:${mockPort}/api/version`,
             reuseExistingServer: !process.env.CI,
           },
         ]),

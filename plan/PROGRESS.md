@@ -190,3 +190,11 @@ Newest entries at the bottom. Each entry: date, task, what changed, test status,
 
 - Pulled `gemma3:12b-it-qat` (8.9 GB); `gemma3:4b-it-qat` and `embeddinggemma` were already present. `LAZYAPPLY_E2E_MODEL` selects the model for `pnpm measure`.
 - On battery, same session: full applications 4B 13.3/9.6/8.6 s vs 12B 32.8/26.0/21.4 s (Greenhouse/Lever/Ashby), identical decisions; planning 16 s vs 41 s; drafting 5.3 s vs 13.5 s with clearly richer, still grounded drafts from 12B. Recommended setup: 4B mapping + 12B drafting. README and post updated. Temporary Ollama on :11436 stopped again.
+
+## 2026-10-26: fix Greenhouse phone country picker
+
+- Real Greenhouse (job-boards.greenhouse.io) labels phone-country options "India +91" but shows only "+91" once picked, so the stick check failed and the field became a handoff. `selectCombobox` now accepts a display that is a whole-word part of the chosen option (`shows`).
+- `bestOption` maps common country short forms (USA, US, UK, UAE) to full names.
+- Greenhouse fixture gains a dial-code country picker; e2e asserts the action succeeds (fails with `did-not-stick` before the fix).
+- `MOCK_MODEL_PORT` moves the e2e mock model off 11435, which the Ollama desktop app now uses.
+- Tests: 231 unit, 64 e2e passing (`MOCK_MODEL_PORT=11437 pnpm test:e2e`).

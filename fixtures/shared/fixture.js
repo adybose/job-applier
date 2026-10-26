@@ -120,7 +120,8 @@
     function choose(o) {
       hidden.value = o;
       input.value = '';
-      placeholder.textContent = o;
+      // data-display="suffix": show only the last word, like Greenhouse's phone country picker ("India +91" shows "+91").
+      placeholder.textContent = root.dataset.display === 'suffix' ? o.split(' ').pop() : o;
       placeholder.className = 'select__single-value';
       root.dataset.value = o;
       close();

@@ -9,6 +9,13 @@ describe('bestOption', () => {
     expect(bestOption([{ value: 'UK', label: 'Britain' }], 'uk')?.label).toBe('Britain');
   });
 
+  it('matches phone-country options that carry a dial code, including short country names', () => {
+    const countries = o('United States +1', 'United Kingdom +44', 'India +91', 'British Indian Ocean Territory +246');
+    expect(bestOption(countries, 'India')?.label).toBe('India +91');
+    expect(bestOption(countries, 'USA')?.label).toBe('United States +1');
+    expect(bestOption(countries, 'UK')?.label).toBe('United Kingdom +44');
+  });
+
   it('matches a unique prefix or substring', () => {
     expect(bestOption(o('Yes, I am authorized', 'No'), 'Yes')?.label).toBe('Yes, I am authorized');
     expect(bestOption(o('I am not a protected veteran', 'I identify as a protected veteran'), 'not a protected')?.label).toBe(

@@ -64,6 +64,14 @@ test.describe('actions', () => {
     await expect(gh.page.locator('#race-select')).toHaveAttribute('data-value', 'Decline To Self Identify');
     await expect(gh.page.locator('#race-select [role=listbox]')).toHaveCount(0);
 
+    // Greenhouse's phone country picker shows only the dial code ("+91") for the option "India +91".
+    const country = gh.field('Country');
+    expect(await gh.act(country.frameId, { action: 'select_option', fieldId: country.id, value: 'India' })).toEqual({
+      ok: true,
+      value: 'India +91',
+    });
+    await expect(gh.page.locator('#phone-country-select .select__single-value')).toHaveText('+91');
+
     const auth = gh.field(/legally authorized/);
     expect(await gh.act(auth.frameId, { action: 'select_option', fieldId: auth.id, value: 'Yes' })).toMatchObject({ ok: true });
     await expect(gh.page.locator('#job_application_answers_attributes_2_boolean_value')).toHaveValue('1');

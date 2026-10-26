@@ -21,6 +21,17 @@ const fail = (reason: Extract<ActionResult, { ok: false }>['reason'], detail?: s
 
 const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
+/**
+ * Whether a combobox now shows the chosen option. Some widgets display only part of the option,
+ * e.g. Greenhouse's phone country picker shows "+91" after "India +91" is picked.
+ */
+export function shows(displayed: string, chosen: string): boolean {
+  const d = displayed.trim().toLowerCase();
+  const c = chosen.trim().toLowerCase();
+  if (!d) return false;
+  return d === c || c.endsWith(` ${d}`) || c.startsWith(`${d} `);
+}
+
 function nativeSetValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, value: string): void {
   const proto =
     el instanceof HTMLTextAreaElement
@@ -79,10 +90,10 @@ function normalizeForInput(el: HTMLInputElement | HTMLTextAreaElement, value: st
 }
 
 /** Reads the value back, then again after the page had a chance to reset it (R-AC-9/R-AC-10). */
-async function sticks(read: () => string, expected: string): Promise<boolean> {
-  if (!same(read(), expected)) return false;
+async function sticks(read: () => string, expected: string, match = same): Promise<boolean> {
+  if (!match(read(), expected)) return false;
   await wait(SETTLE_MS);
-  return same(read(), expected);
+  return match(read(), expected);
 }
 
 function mayOverwrite(fieldId: string, current: string, target: string, overwrite: boolean): boolean {
@@ -210,9 +221,11 @@ async function selectCombobox(fieldId: string, input: HTMLElement, value: string
 
   for (const filter of [false, true]) {
     const chosen = await attempt(filter);
-    if (chosen && (await sticks(read, chosen))) {
+    if (chosen && (await sticks(read, chosen, shows))) {
       comboboxContainer(input).setAttribute('data-lazyapply-value', chosen);
-      return done(fieldId, chosen);
+      // Remember what the page shows, so a later check of this field still counts it as the agent's value.
+      agentValues.set(fieldId, read());
+      return { ok: true, value: chosen };
     }
   }
   return fail('did-not-stick', 'Could not pick an option in this dropdown.');

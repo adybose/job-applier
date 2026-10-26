@@ -7,11 +7,12 @@ import { findViolations, type ExtensionRequest } from './guard';
 export const USE_OLLAMA = process.env.LAZYAPPLY_E2E_OLLAMA === '1';
 /** Real Ollama for `test:e2e:ollama`; it must allow extension origins (OLLAMA_ORIGINS=chrome-extension://*). */
 export const OLLAMA_ORIGIN = process.env.LAZYAPPLY_OLLAMA_URL ?? 'http://localhost:11434';
-export const MODEL_ORIGIN = USE_OLLAMA ? OLLAMA_ORIGIN : 'http://127.0.0.1:11435';
+/** The Ollama desktop app can hold 11435 itself; MOCK_MODEL_PORT moves the mock elsewhere. */
+export const MOCK_ORIGIN = `http://127.0.0.1:${process.env.MOCK_MODEL_PORT ?? 11435}`;
+export const MODEL_ORIGIN = USE_OLLAMA ? OLLAMA_ORIGIN : MOCK_ORIGIN;
 /** Which model the panel uses in e2e runs (pnpm measure compares presets with this). */
 const E2E_MODEL = process.env.LAZYAPPLY_E2E_MODEL ?? 'gemma3:4b-it-qat';
 const E2E_NUM_CTX = /12b/.test(E2E_MODEL) ? 8192 : 16384;
-export const MOCK_ORIGIN = 'http://127.0.0.1:11435';
 /** The default endpoint is configured until each test points the panel at the model under test. */
 export const DEFAULT_MODEL_ORIGIN = 'http://localhost:11434';
 export const ALLOWED_MODEL_ORIGINS = [MODEL_ORIGIN, DEFAULT_MODEL_ORIGIN];
