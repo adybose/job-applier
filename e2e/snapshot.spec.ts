@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test';
+import { readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { Field, FormSnapshot } from '../extension/src/shared/snapshot';
 import { expect, openFixture, panelCall, test } from './harness';
 
@@ -172,4 +175,122 @@ test.describe('FormSnapshot', () => {
     const s = await panelCall(panel, 'snapshotTab', tabId);
     expect(s.buttons.find((b) => b.text === 'Next')).toMatchObject({ isNavLike: true, isSubmitLike: false });
   });
+
+  test('recruitee capture (clanx-real): every field, label, group and button', async ({ context, openPanel }) => {
+    const panel = await openPanel();
+    const { tabId } = await openFixture(context, panel, 'captures/clanx-real.html');
+    await panelCall(panel, 'injectContent', tabId);
+    const s = await panelCall(panel, 'snapshotTab', tabId);
+
+    // "My information": label[for] with Radix ids that contain ':' and '.', asterisk in an aria-hidden span.
+    expect(byLabel(s, 'Full name')).toMatchObject({ kind: 'text', required: true, autocomplete: 'name', name: 'candidate.name' });
+    expect(byLabel(s, 'Email address')).toMatchObject({ kind: 'email', required: true, name: 'candidate.email' });
+    expect(byLabel(s, 'Phone number')).toMatchObject({ kind: 'tel', required: true, name: 'candidate.phone' });
+    // Visually hidden file input (opacity 0) whose aria-labelledby points at a missing id.
+    expect(byLabel(s, 'CV or resume')).toMatchObject({ kind: 'file', required: true, name: 'candidate.cv' });
+
+    // Radio groups labelled by a legend nested inside the outer "Questions" fieldset; radios are 1x1 px sr-only.
+    const years = byLabel(s, /^How many years of experience do you have as an AI Engineer/);
+    expect(years).toMatchObject({ kind: 'radio-group', required: true });
+    expect(years?.options).toHaveLength(11);
+    expect(years?.options?.[0]?.label).toBe('0 - 1 year');
+    expect(years?.options?.at(-1)?.label).toBe('10+ years');
+    expect(byLabel(s, /^Are you willing to relocate to Bengaluru\?/)?.options?.map((o) => o.label)).toEqual(['Yes', 'No']);
+    expect(byLabel(s, /^What is your notice period\?/)).toMatchObject({ kind: 'radio-group', required: true });
+    expect(byLabel(s, /^What is your notice period\?/)?.options).toHaveLength(6);
+    expect(byLabel(s, /^Is your notice period negotiable\?/)).toMatchObject({ kind: 'radio-group' });
+    expect(byLabel(s, /^Do you have experience working at a product-based company\?/)).toMatchObject({ kind: 'radio-group' });
+    expect(byLabel(s, /^Are you a citizen of India/)).toMatchObject({ kind: 'radio-group', required: true });
+    expect(byLabel(s, /^What does your current or most recent company mainly do\?/)?.options).toHaveLength(3);
+    expect(byLabel(s, /^What is your current annual CTC range\?/)?.options).toHaveLength(17);
+    // The outer fieldset's legend is a section, never a field label.
+    expect(s.fields.filter((f) => f.label === 'Questions' || f.label === 'My information')).toEqual([]);
+
+    // Text, number and textarea questions.
+    expect(byLabel(s, /^Please share your current CTC breakup/)).toMatchObject({ kind: 'text' });
+    expect(byLabel(s, 'What is your expected annual CTC? (INR)')).toMatchObject({ kind: 'number', required: true });
+    expect(byLabel(s, 'Help us with your LinkedIn profile link')).toMatchObject({ kind: 'text', required: true });
+    expect(byLabel(s, /^Tell us about the product or services/)).toMatchObject({ kind: 'textarea' });
+    expect(byLabel(s, /^Mandatory Loom video/)).toMatchObject({ kind: 'textarea' });
+    expect(byLabel(s, /^Describe an evaluation harness/)).toMatchObject({ kind: 'textarea' });
+    expect(byLabel(s, /^After exploring Live2\.ai/)).toMatchObject({ kind: 'textarea' });
+    expect(byLabel(s, 'Why do you want to leave your current role?')).toMatchObject({ kind: 'textarea', required: true });
+    expect(byLabel(s, /^Where did you find this job opportunity\?/)).toMatchObject({ kind: 'textarea', required: true });
+
+    // 4 inputs + 8 radio groups + 2 text + 1 number + 6 textareas (the country-code picker may add one more).
+    expect(s.fields.length).toBeGreaterThanOrEqual(21);
+    expect(s.fields.map((f) => f.name)).not.toContain('candidate.openQuestionAnswers.7726116.openQuestionId');
+    for (const f of s.fields) expect(f.label, f.name).not.toMatch(/\*\s*$/);
+
+    // Buttons: "Send" is submit; the Radix tabs are not.
+    expect(s.buttons.find((b) => b.text === 'Send')).toMatchObject({ isSubmitLike: true });
+    for (const tab of ['Job details', 'Application']) {
+      expect(s.buttons.find((b) => b.text === tab)?.isSubmitLike ?? false, tab).toBe(false);
+    }
+    expect(s.blockers).toEqual([]);
+    expect(s.jobDescription ?? '').not.toContain('Full name');
+  });
+});
+
+// "Any ordinary application form should work": every visible control a person could fill on the page appears in the
+// snapshot with a real label. Site-agnostic, so every new capture in fixtures/captures/ is checked automatically.
+const COVERAGE = [
+  'generic.html',
+  ...readdirSync(resolve(import.meta.dirname, '../fixtures/captures'))
+    .filter((f) => f.endsWith('.html'))
+    .map((f) => `captures/${f}`),
+];
+
+/** Visible, enabled controls in the light DOM (radios grouped by name), read after the snapshot tagged them. */
+function visibleControls(page: Page) {
+  return page.evaluate(() => {
+    const out: { key: string; name: string; id: string | null; html: string }[] = [];
+    const seen = new Set<string>();
+    for (const el of Array.from(document.querySelectorAll('input, select, textarea, [contenteditable=true]'))) {
+      const input = el instanceof HTMLInputElement ? el : null;
+      if (input && ['hidden', 'submit', 'button', 'reset', 'image'].includes(input.type)) continue;
+      if ((el as HTMLInputElement).disabled) continue;
+      // Upload inputs are usually hidden behind a styled button; judge them by their container.
+      const judged = input?.type === 'file' ? (el.parentElement ?? el) : el;
+      if (!judged.checkVisibility({ visibilityProperty: true })) continue;
+      const rect = el.getBoundingClientRect();
+      if (input?.type !== 'file' && (rect.width === 0 || rect.height === 0)) continue;
+      // Deliberate bot traps (generic.html's honeypot).
+      if (el.getAttribute('tabindex') === '-1' && /honeypot|_hp\b/i.test(`${el.className} ${el.getAttribute('name') ?? ''}`)) continue;
+      const name = el.getAttribute('name') ?? '';
+      const key = input?.type === 'radio' && name ? `radio:${name}` : `${out.length}:${el.tagName}:${name}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({
+        key,
+        name,
+        id: el.getAttribute('data-lazyapply-group') ?? el.getAttribute('data-lazyapply-id'),
+        html: el.outerHTML.slice(0, 160),
+      });
+    }
+    return out;
+  });
+}
+
+test.describe('FormSnapshot coverage on ordinary forms', () => {
+  for (const fixture of COVERAGE) {
+    test(`${fixture}: every visible control is in the snapshot with a real label`, async ({ context, openPanel }) => {
+      const panel = await openPanel();
+      const { page, tabId } = await openFixture(context, panel, fixture);
+      await panelCall(panel, 'injectContent', tabId);
+      const s = await panelCall(panel, 'snapshotTab', tabId);
+      const controls = await visibleControls(page);
+      expect(controls.length, 'the page has controls').toBeGreaterThan(0);
+
+      for (const c of controls) {
+        const field = c.id ? s.fields.find((f) => f.id === c.id) : undefined;
+        expect.soft(field, `missing from snapshot: ${c.html}`).toBeDefined();
+        if (!field) continue;
+        expect.soft(field.label.trim(), `empty label: ${c.html}`).not.toBe('');
+        // generic.html labels one field only by its name on purpose (the last-resort strategy); real pages never should.
+        if (c.name && fixture.startsWith('captures/')) expect.soft(field.label, `label is the raw name attribute: ${c.html}`).not.toBe(c.name);
+        expect.soft(field.label, `label keeps the required marker: ${c.html}`).not.toMatch(/[*✱]\s*$/);
+      }
+    });
+  }
 });

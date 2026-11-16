@@ -14,6 +14,7 @@ Static HTML captures of application forms, used by the Playwright e2e tests (spe
 | `shadow-multistep.html` | Custom-element, shadow-DOM, 3-step form | P1 |
 | `workable.html`, `smartrecruiters.html` | P1 ATS captures | P1 |
 | `workday.html` | Workday-style shadow DOM, multi-step | P2 |
+| `captures/*.html` | Real pages from live job sites with the form kept exactly (see `captures/README.md`) | P1 |
 | `profiles/alex-rivera-cv.pdf`, `profiles/alex-rivera-linkedin.pdf` | Fictional CV and LinkedIn export | P0 |
 
 ## Required elements in every form fixture

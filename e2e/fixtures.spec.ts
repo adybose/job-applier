@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { FIXTURE_ORIGIN } from './harness';
 
@@ -28,6 +28,32 @@ for (const name of FORMS) {
       const html = readFileSync(resolve(import.meta.dirname, '../fixtures', name), 'utf8');
       const urls = html.match(/(?:src|href)="https?:\/\/[^"]+"/g) ?? [];
       for (const u of urls) expect(u).toMatch(/127\.0\.0\.1/);
+    });
+  });
+}
+
+// fixtures/captures/README.md: real pages need no CAPTCHA or EEO block, but must load nothing remote and count Submit clicks.
+const CAPTURES = readdirSync(resolve(import.meta.dirname, '../fixtures/captures'))
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => `captures/${f}`);
+
+for (const name of CAPTURES) {
+  test.describe(name, () => {
+    test('references no remote hosts', () => {
+      const html = readFileSync(resolve(import.meta.dirname, '../fixtures', name), 'utf8');
+      const urls = html.match(/(?:src|href)="https?:\/\/[^"]+"|url\(\s*['"]?https?:\/\/[^)]+\)|@import/g) ?? [];
+      for (const u of urls) expect(u).toMatch(/127\.0\.0\.1/);
+    });
+
+    test('has a form and records Submit clicks without navigating', async ({ page }) => {
+      await page.goto(`${FIXTURE_ORIGIN}/${name}`);
+      await expect(page.locator('form').first()).toBeAttached();
+      const submit = page.locator('[data-submit]');
+      await expect(submit).toHaveCount(1);
+      await submit.scrollIntoViewIfNeeded();
+      await submit.click();
+      expect(await page.evaluate(() => (window as unknown as { __submitClicks: number }).__submitClicks)).toBe(1);
+      expect(page.url()).toBe(`${FIXTURE_ORIGIN}/${name}`);
     });
   });
 }
